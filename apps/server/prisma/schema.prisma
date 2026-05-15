@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id               Int            @id @default(autoincrement())
+  email            String         @unique
+  passwordHash     String
+  username         String         @unique
+  createdAt        DateTime       @default(now())
+  habits           Habit[]
+  habitLogs        HabitLog[]
+  posts            Post[]
+  partnersSent     Partner[]      @relation("UserPartners")
+  partnersReceived Partner[]      @relation("PartnerUsers")
+  notifications    Notification[]
+}
+
+model Habit {
+  id            Int        @id @default(autoincrement())
+  userId        Int
+  user          User       @relation(fields: [userId], references: [id])
+  name          String
+  description   String?
+  triggerCue    String?
+  microVersion  String?
+  obstaclePlan  String?
+  socialMode    String     @default("private")
+  frequency     String     @default("daily")
+  durationWeeks Int?
+  reward        String?
+  isActive      Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+  habitLogs     HabitLog[]
+  posts         Post[]
+}
+
+model HabitLog {
+  id           Int      @id @default(autoincrement())
+  habitId      Int
+  habit        Habit    @relation(fields: [habitId], references: [id])
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id])
+  date         DateTime
+  completed    Boolean
+  missedReason String?
+  createdAt    DateTime @default(now())
+}
+
+model Post {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+  habitId    Int
+  habit      Habit   @relation(fields: [habitId], references: [id])
+  content    String
+  visibility String   @default("private")
+  createdAt  DateTime @default(now())
+}
+
+model Partner {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation("UserPartners", fields: [userId], references: [id])
+  partnerId Int
+  partner   User     @relation("PartnerUsers", fields: [partnerId], references: [id])
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  type        String
+  message     String
+  read        Boolean  @default(false)
+  scheduledAt DateTime?
+  createdAt   DateTime @default(now())
+}
