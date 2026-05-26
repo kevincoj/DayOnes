@@ -36,7 +36,7 @@ export default function LoginPage() {
 
       if (!response.ok) {
         // Backend returned an error (wrong password, etc.)
-        setError(data.message || 'Login failed')
+        setError(data.error || data.message || 'Login failed')
         return
       }
 
