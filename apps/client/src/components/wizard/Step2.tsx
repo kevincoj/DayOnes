@@ -1,8 +1,8 @@
-import type { HabitFormData } from "../../types/habit"
+import type { HabitFormData } from "../../types/habit";
 
 interface Props {
-  formData: HabitFormData
-  onChange: (field: keyof HabitFormData, value: string) => void
+  formData: HabitFormData;
+  onChange: (field: keyof HabitFormData, value: string) => void;
 }
 
 export default function Step2({ formData, onChange }: Props) {
@@ -21,15 +21,30 @@ export default function Step2({ formData, onChange }: Props) {
         <label className="text-sm font-medium text-gray-700">
           Frequency <span className="text-red-400">*</span>
         </label>
-        <select
-          value={formData.frequency}
-          onChange={(e) => onChange("frequency", e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-        >
-          <option value="daily">Daily</option>
-          <option value="weekly">Weekly</option>
-          <option value="custom">Custom</option>
-        </select>
+        <div className="flex items-center gap-2">
+          <input
+            type="number"
+            min={1}
+            max={7}
+            value={formData.frequency}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val === "") return onChange("frequency", "");
+              const clamped = Math.min(7, Math.max(1, Number(val)));
+              onChange("frequency", clamped.toString());
+            }}
+            placeholder="#"
+            className={`border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-20 text-center ${
+              formData.frequency === "" ? "border-red-400" : "border-gray-300"
+            }`}
+          />
+          <span className="text-sm text-gray-500">days per week</span>
+        </div>
+        {formData.frequency === "" && (
+          <p className="text-xs text-red-400 mt-1">
+            Please enter a number between 1 and 7
+          </p>
+        )}
       </div>
 
       <div className="flex flex-col gap-1">
@@ -50,5 +65,5 @@ export default function Step2({ formData, onChange }: Props) {
         </div>
       </div>
     </div>
-  )
+  );
 }

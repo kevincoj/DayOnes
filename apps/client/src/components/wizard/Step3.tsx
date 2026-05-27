@@ -36,11 +36,11 @@ export default function Step3({ formData, onChange }: Props) {
         </div>
 
         {/* Live preview */}
-        {formData.triggerCue && (
+        {/* {formData.triggerCue && (
           <p className="text-sm text-blue-600 mt-1">
             ✓ After I {formData.triggerCue}
           </p>
-        )}
+        )} */}
       </div>
     </div>
   )
