@@ -4,19 +4,54 @@ import { prisma } from "../lib/prisma";
 // GET /api/habits
 // Returns all active habits for the logged-in user
 export async function getHabits(req: Request, res: Response) {
-  const userId = (req as any).user.id;
+  const userId = (req as any).user.id
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const tomorrow = new Date(today)
+  tomorrow.setDate(tomorrow.getDate() + 1)
+
+  const weekStart = new Date(today)
+  weekStart.setDate(today.getDate() - today.getDay()) // Sunday
 
   const habits = await prisma.habit.findMany({
-    where: {
-      userId: userId,
-      isActive: true,
+    where: { userId, isActive: true },
+    orderBy: { createdAt: "desc" },
+    include: {
+      habitLogs: {
+        where: { completed: true },
+        orderBy: { date: "desc" },
+      },
     },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+  })
 
-  res.json(habits);
+  const habitsWithStats = habits.map((habit) => {
+    const logs = habit.habitLogs
+
+    // Streak
+    let currentStreak = 0
+    for (let i = 0; i < logs.length; i++) {
+      const expected = new Date()
+      expected.setHours(0, 0, 0, 0)
+      expected.setDate(expected.getDate() - i)
+      const logDate = new Date(logs[i].date)
+      logDate.setHours(0, 0, 0, 0)
+      if (logDate.toDateString() === expected.toDateString()) currentStreak++
+      else break
+    }
+
+    const loggedToday = logs.some((l) => {
+      const d = new Date(l.date)
+      return d >= today && d < tomorrow
+    })
+
+    const logsThisWeek = logs.filter((l) => new Date(l.date) >= weekStart).length
+
+    const { habitLogs, ...habitData } = habit
+    return { ...habitData, currentStreak, totalCompleted: logs.length, loggedToday, logsThisWeek }
+  })
+
+  res.json(habitsWithStats)
 }
 
 // GET /api/habits/:id
@@ -143,4 +178,39 @@ export async function deleteHabit(req: Request, res: Response) {
   });
 
   res.json({ message: "Habit deleted" });
+}
+
+// POST /api/habits/:id/log
+export async function logHabit(req: Request, res: Response) {
+  const userId = (req as any).user.id
+  const habitId = parseInt((req as any).params.id)
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const tomorrow = new Date(today)
+  tomorrow.setDate(tomorrow.getDate() + 1)
+
+  const existing = await prisma.habitLog.findFirst({
+    where: {
+      habitId,
+      userId,
+      date: { gte: today, lt: tomorrow },
+    },
+  })
+
+  if (existing) {
+    res.status(400).json({ error: "Already logged today" })
+    return
+  }
+
+  const log = await prisma.habitLog.create({
+    data: {
+      habitId,
+      userId,
+      date: new Date(),
+      completed: true,
+    },
+  })
+
+  res.status(201).json(log)
 }

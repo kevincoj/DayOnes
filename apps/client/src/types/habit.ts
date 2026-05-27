@@ -12,11 +12,17 @@ export interface HabitFormData {
 }
 
 export interface Habit {
-  id: number;
-  name: string;
-  description: string | null;
-  frequency: string;
-  triggerCue: string | null;
-  socialMode: string;
-  isActive: boolean;
+  id: number
+  name: string
+  description: string | null
+  frequency: string
+  durationWeeks: number | null
+  createdAt: string
+  currentStreak: number
+  totalCompleted: number
+  loggedToday: boolean
+  logsThisWeek: number
+  triggerCue: string | null
+  socialMode: string
+  isActive: boolean
 }
