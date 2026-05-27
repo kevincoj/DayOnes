@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { HabitFormData } from "../types/habit";
 import { useAuth } from "../context/AuthContext";
