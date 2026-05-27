@@ -2,7 +2,6 @@
 
 > **Repo:** https://github.com/kevincoj/DayOnes
 > **Course:** CS 35L, Spring 2026
-> **Team:** 2 members, both full-stack
 
 ---
 
