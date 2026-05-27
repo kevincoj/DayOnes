@@ -21,8 +21,11 @@ export interface Habit {
   currentStreak: number
   totalCompleted: number
   loggedToday: boolean
+  logDates: string[]
   logsThisWeek: number
   triggerCue: string | null
   socialMode: string
   isActive: boolean
+  microVersion: string | null
+  reward: string | null
 }

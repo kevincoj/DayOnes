@@ -30,15 +30,16 @@ export default function HabitCard({ habit, onDelete, onCheckIn }: Props) {
   }
 
   return (
-    <li className="border rounded-lg p-4 shadow-sm relative">
+    <li
+      onClick={() => navigate(`/habits/${habit.id}`)}
+      className="border rounded-lg p-4 shadow-sm relative cursor-pointer transition-all duration-150 hover:shadow-md hover:scale-[1.01] hover:bg-gray-50"
+    >
       <div className="flex justify-between items-start">
         <div className="flex-1">
           <h2 className="text-xl font-semibold">{habit.name}</h2>
           {habit.description && (
             <p className="text-gray-600 mt-1">{habit.description}</p>
           )}
-
-          {/* Stats row */}
           <div className="flex items-center gap-4 mt-2">
             <p className="text-sm text-gray-400">
               {habit.logsThisWeek} / {habit.frequency} days this week
@@ -51,7 +52,10 @@ export default function HabitCard({ habit, onDelete, onCheckIn }: Props) {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div
+          className="flex items-center gap-2"
+          onClick={(e) => e.stopPropagation()}
+        >
           {/* Check-in button */}
           <button
             onClick={handleCheckIn}
@@ -73,7 +77,6 @@ export default function HabitCard({ habit, onDelete, onCheckIn }: Props) {
             >
               ⋯
             </button>
-
             {menuOpen && (
               <div className="absolute right-0 mt-1 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
                 <button

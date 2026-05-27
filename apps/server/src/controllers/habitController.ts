@@ -57,19 +57,62 @@ export async function getHabits(req: Request, res: Response) {
 // GET /api/habits/:id
 // Returns a single habit for the logged-in user
 export async function getHabit(req: Request, res: Response) {
-  const userId = (req as any).user.id;
-  const habitId = parseInt((req as any).params.id);
+  const userId = (req as any).user.id
+  const habitId = parseInt((req as any).params.id)
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const tomorrow = new Date(today)
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  const weekStart = new Date(today)
+  weekStart.setDate(today.getDate() - today.getDay())
 
   const habit = await prisma.habit.findFirst({
-    where: { id: habitId, userId: userId },
-  });
+    where: { id: habitId, userId },
+    include: {
+      habitLogs: {
+        where: { completed: true },
+        orderBy: { date: "asc" },
+      },
+    },
+  })
 
   if (!habit) {
-    res.status(404).json({ error: "Habit not found" });
-    return;
+    res.status(404).json({ error: "Habit not found" })
+    return
   }
 
-  res.json(habit);
+  const logs = habit.habitLogs
+  const sortedDesc = [...logs].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+
+  let currentStreak = 0
+  for (let i = 0; i < sortedDesc.length; i++) {
+    const expected = new Date()
+    expected.setHours(0, 0, 0, 0)
+    expected.setDate(expected.getDate() - i)
+    const logDate = new Date(sortedDesc[i].date)
+    logDate.setHours(0, 0, 0, 0)
+    if (logDate.toDateString() === expected.toDateString()) currentStreak++
+    else break
+  }
+
+  const loggedToday = logs.some((l) => {
+    const d = new Date(l.date)
+    return d >= today && d < tomorrow
+  })
+
+  const logsThisWeek = logs.filter((l) => new Date(l.date) >= weekStart).length
+  const logDates = logs.map((l) => new Date(l.date).toISOString().split("T")[0])
+
+  const { habitLogs, ...habitData } = habit
+  res.json({
+    ...habitData,
+    currentStreak,
+    totalCompleted: logs.length,
+    loggedToday,
+    logsThisWeek,
+    logDates,
+  })
 }
 
 // POST /api/habits
@@ -184,32 +227,32 @@ export async function deleteHabit(req: Request, res: Response) {
 export async function logHabit(req: Request, res: Response) {
   const userId = (req as any).user.id
   const habitId = parseInt((req as any).params.id)
+  const { date: dateParam } = req.body
 
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const tomorrow = new Date(today)
-  tomorrow.setDate(tomorrow.getDate() + 1)
+  const targetDate = dateParam ? new Date(dateParam) : new Date()
+  targetDate.setHours(0, 0, 0, 0)
+  const dayAfter = new Date(targetDate)
+  dayAfter.setDate(dayAfter.getDate() + 1)
+
+  // Prevent logging future dates
+  const now = new Date()
+  now.setHours(0, 0, 0, 0)
+  if (targetDate > now) {
+    res.status(400).json({ error: "Cannot log a future date" })
+    return
+  }
 
   const existing = await prisma.habitLog.findFirst({
-    where: {
-      habitId,
-      userId,
-      date: { gte: today, lt: tomorrow },
-    },
+    where: { habitId, userId, date: { gte: targetDate, lt: dayAfter } },
   })
 
   if (existing) {
-    res.status(400).json({ error: "Already logged today" })
+    res.status(400).json({ error: "Already logged this day" })
     return
   }
 
   const log = await prisma.habitLog.create({
-    data: {
-      habitId,
-      userId,
-      date: new Date(),
-      completed: true,
-    },
+    data: { habitId, userId, date: targetDate, completed: true },
   })
 
   res.status(201).json(log)
