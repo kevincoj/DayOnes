@@ -4,6 +4,7 @@ import RegisterPage from '../pages/RegisterPage'
 import HomePage from '../pages/HomePage'
 import HabitWizard from '../pages/HabitWizard'
 import ProtectedRoute from '../components/ProtectedRoute'
+import EditHabitPage from '../pages/EdithabitPage'
 
 export default function App() {
   return (
@@ -18,6 +19,10 @@ export default function App() {
         <Route path="/habits/new" element={
           <ProtectedRoute>
             <HabitWizard />
+          </ProtectedRoute>} />
+        <Route path="/habits/:id/edit" element={
+          <ProtectedRoute>
+            <EditHabitPage />
           </ProtectedRoute>} />
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>

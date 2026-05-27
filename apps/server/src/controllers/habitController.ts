@@ -19,6 +19,24 @@ export async function getHabits(req: Request, res: Response) {
   res.json(habits);
 }
 
+// GET /api/habits/:id
+// Returns a single habit for the logged-in user
+export async function getHabit(req: Request, res: Response) {
+  const userId = (req as any).user.id;
+  const habitId = parseInt((req as any).params.id);
+
+  const habit = await prisma.habit.findFirst({
+    where: { id: habitId, userId: userId },
+  });
+
+  if (!habit) {
+    res.status(404).json({ error: "Habit not found" });
+    return;
+  }
+
+  res.json(habit);
+}
+
 // POST /api/habits
 // Creates a new habit for the logged-in user
 export async function createHabit(req: Request, res: Response) {

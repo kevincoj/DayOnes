@@ -1,5 +1,6 @@
 import { useState } from "react"
 import type { Habit } from "../types/habit"
+import { useNavigate } from "react-router-dom"
 
 interface Props {
   habit: Habit
@@ -8,6 +9,7 @@ interface Props {
 
 export default function HabitCard({ habit, onDelete }: Props) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const navigate = useNavigate()
 
   return (
     <li className="border rounded-lg p-4 shadow-sm relative">
@@ -37,8 +39,8 @@ export default function HabitCard({ habit, onDelete }: Props) {
             <div className="absolute right-0 mt-1 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
               <button
                 onClick={() => {
-                  setMenuOpen(false)
-                  // TODO: navigate to edit page
+                    setMenuOpen(false)
+                    navigate(`/habits/${habit.id}/edit`)   // ← this is the new line
                 }}
                 className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg"
               >
