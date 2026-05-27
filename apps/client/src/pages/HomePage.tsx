@@ -17,6 +17,21 @@ export default function HomePage() {
     navigate("/login");
   }
 
+  function handleCheckIn(id: number) {
+    setHabits((prev) =>
+      prev.map((h) =>
+        h.id === id
+          ? {
+              ...h,
+              loggedToday: true,
+              logsThisWeek: h.logsThisWeek + 1,
+              currentStreak: h.currentStreak + 1,
+            }
+          : h,
+      ),
+    );
+  }
+
   useEffect(() => {
     async function fetchHabits() {
       const token = localStorage.getItem("token");
@@ -103,6 +118,7 @@ export default function HomePage() {
                 const habit = habits.find((h) => h.id === id);
                 if (habit) setHabitToDelete(habit);
               }}
+              onCheckIn={handleCheckIn}
             />
           ))}
         </ul>
