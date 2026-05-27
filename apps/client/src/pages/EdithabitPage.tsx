@@ -1,7 +1,7 @@
-import { useState, useContext, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import type { HabitFormData } from "../types/habit"
-import { AuthContext } from "../context/AuthContext"
+import { useAuth } from '../context/AuthContext'
 import Step1 from "../components/wizard/Step1"
 import Step2 from "../components/wizard/Step2"
 import Step3 from "../components/wizard/Step3"
@@ -14,7 +14,7 @@ const TOTAL_STEPS = 7
 
 export default function EditHabitPage() {
   const navigate = useNavigate()
-  const { token } = useContext(AuthContext)
+  const { token } = useAuth();
   const { id } = useParams()                    // ← NEW: read :id from URL
 
   const [isSubmitting, setIsSubmitting] = useState(false)
