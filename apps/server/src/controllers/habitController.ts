@@ -229,7 +229,7 @@ export async function logHabit(req: Request, res: Response) {
   const habitId = parseInt((req as any).params.id)
   const { date: dateParam } = req.body
 
-  const targetDate = dateParam ? new Date(dateParam) : new Date()
+  const targetDate = dateParam ? new Date(dateParam + "T12:00:00") : new Date()
   targetDate.setHours(0, 0, 0, 0)
   const dayAfter = new Date(targetDate)
   dayAfter.setDate(dayAfter.getDate() + 1)
@@ -256,4 +256,27 @@ export async function logHabit(req: Request, res: Response) {
   })
 
   res.status(201).json(log)
+}
+
+export async function deleteLog(req: Request, res: Response) {
+  const userId = (req as any).user.id
+  const habitId = parseInt((req as any).params.id)
+  const { date } = req.body
+
+  const targetDate = new Date(date + "T12:00:00")
+  targetDate.setHours(0, 0, 0, 0)
+  const dayAfter = new Date(targetDate)
+  dayAfter.setDate(dayAfter.getDate() + 1)
+
+  const log = await prisma.habitLog.findFirst({
+    where: { habitId, userId, date: { gte: targetDate, lt: dayAfter } },
+  })
+
+  if (!log) {
+    res.status(404).json({ error: "Log not found" })
+    return
+  }
+
+  await prisma.habitLog.delete({ where: { id: log.id } })
+  res.json({ message: "Log removed" })
 }
