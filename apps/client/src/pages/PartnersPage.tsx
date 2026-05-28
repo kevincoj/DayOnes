@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import type { Partner, PartnerUser } from "../types/habit";
 import Navbar from "../components/Navbar";
+import DeleteModal from "../components/DeleteModal"; 
 
 export default function PartnersPage() {
   const { user, token } = useContext(AuthContext);
@@ -11,8 +12,8 @@ export default function PartnersPage() {
   const [isSearching, setIsSearching] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [partnerToRemove, setPartnerToRemove] = useState<Partner | null>(null);
 
-  // Fetch all partnerships on load
   useEffect(() => {
     const fetchPartners = async () => {
       try {
@@ -28,7 +29,6 @@ export default function PartnersPage() {
     fetchPartners();
   }, [token]);
 
-  // Search users as you type
   useEffect(() => {
     if (searchQuery.trim() === "") {
       setSearchResults([]);
@@ -90,10 +90,10 @@ export default function PartnersPage() {
     });
     if (res.ok) {
       setPartners((prev) => prev.filter((p) => p.id !== id));
+      setPartnerToRemove(null); 
     }
   };
 
-  // Helper: get the other person's info from a partnership
   const getOtherUser = (p: Partner) => {
     return p.userId === user?.id ? p.partner : p.user;
   };
@@ -234,7 +234,7 @@ export default function PartnersPage() {
                     @{getOtherUser(p).username}
                   </span>
                   <button
-                    onClick={() => handleRevoke(p.id)}
+                    onClick={() => setPartnerToRemove(p)} 
                     className="text-sm text-red-500 hover:underline"
                   >
                     Remove
@@ -244,6 +244,15 @@ export default function PartnersPage() {
             </ul>
           )}
         </div>
+
+        {/* Confirmation modal */}
+        {partnerToRemove && (
+          <DeleteModal
+            message={`Remove @${getOtherUser(partnerToRemove).username} as a partner? They won't be able to see your shared habits.`}
+            onConfirm={() => handleRevoke(partnerToRemove.id)}
+            onCancel={() => setPartnerToRemove(null)}
+          />
+        )}
       </div>
     </div>
   );

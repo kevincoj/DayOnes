@@ -10,6 +10,7 @@ export default function HomePage() {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [loading, setLoading] = useState(true);
   const [habitToDelete, setHabitToDelete] = useState<Habit | null>(null);
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const navigate = useNavigate();
   const { logout } = useAuth();
 
@@ -97,19 +98,34 @@ export default function HomePage() {
         {habits.length === 0 ? (
           <p className="text-gray-500">No habits yet. Time to create one!</p>
         ) : (
-          <ul className="space-y-4">
-            {habits.map((habit) => (
-              <HabitCard
-                key={habit.id}
-                habit={habit}
-                onDelete={(id) => {
-                  const habit = habits.find((h) => h.id === id);
-                  if (habit) setHabitToDelete(habit);
-                }}
-                onCheckIn={handleCheckIn}
+          <>
+            {openMenuId !== null && (
+              <div
+                className="fixed inset-0 z-40"
+                onClick={() => setOpenMenuId(null)}
               />
-            ))}
-          </ul>
+            )}
+            <ul className="space-y-4">
+              {habits.map((habit) => (
+                <HabitCard
+                  key={habit.id}
+                  habit={habit}
+                  onDelete={(id) => {
+                    const habit = habits.find((h) => h.id === id);
+                    if (habit) {
+                      setOpenMenuId(null);
+                      setHabitToDelete(habit);
+                    }
+                  }}
+                  onCheckIn={handleCheckIn}
+                  isMenuOpen={openMenuId === habit.id}
+                  onToggleMenu={() =>
+                    setOpenMenuId((prev) => (prev === habit.id ? null : habit.id))
+                  }
+                />
+              ))}
+            </ul>
+          </>
         )}
 
         {habitToDelete && (

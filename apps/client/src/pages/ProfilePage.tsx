@@ -176,7 +176,22 @@ export default function ProfilePage() {
                     </p>
                   </div>
                 ) : (
-                  posts.map((post) => <PostCard key={post.id} post={post} />)
+                  posts.map((post) => (
+                    <PostCard
+                      key={post.id}
+                      post={post}
+                      isOwn={isOwnProfile}
+                      onDelete={(id) => {
+                        // delete logic — we'll wire this up properly when we build edit/delete on profile
+                        fetch(`http://localhost:3001/api/posts/${id}`, {
+                          method: "DELETE",
+                          headers: { Authorization: `Bearer ${token}` },
+                        }).then(() => {
+                          setPosts((prev) => prev.filter((p) => p.id !== id));
+                        });
+                      }}
+                    />
+                  ))
                 )}
                 {hasMorePosts && (
                   <button
