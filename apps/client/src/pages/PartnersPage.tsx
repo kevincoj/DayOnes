@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from "react";
+import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import type { Partner, PartnerUser } from "../types/habit";
 import Navbar from "../components/Navbar";
@@ -167,7 +168,13 @@ export default function PartnersPage() {
                   className="flex items-center justify-between py-3"
                 >
                   <span className="text-sm font-medium text-gray-800">
-                    @{getOtherUser(p).username} wants to be your partner
+                    <Link
+                      to={`/profile/${getOtherUser(p).username}`}
+                      className="hover:text-indigo-600 hover:underline"
+                    >
+                      @{getOtherUser(p).username}
+                    </Link>{" "}
+                    wants to be your partner
                   </span>
                   <div className="flex gap-2">
                     <button
@@ -200,7 +207,13 @@ export default function PartnersPage() {
                   className="flex items-center justify-between py-3"
                 >
                   <span className="text-sm text-gray-600">
-                    @{getOtherUser(p).username} — pending
+                    <Link
+                      to={`/profile/${getOtherUser(p).username}`}
+                      className="hover:text-indigo-600 hover:underline"
+                    >
+                      @{getOtherUser(p).username}
+                    </Link>{" "}
+                    — pending
                   </span>
                   <button
                     onClick={() => handleRevoke(p.id)}
@@ -230,9 +243,12 @@ export default function PartnersPage() {
                   key={p.id}
                   className="flex items-center justify-between py-3"
                 >
-                  <span className="text-sm font-medium text-gray-800">
+                  <Link
+                    to={`/profile/${getOtherUser(p).username}`}
+                    className="text-sm font-medium text-gray-800 hover:text-indigo-600 hover:underline"
+                  >
                     @{getOtherUser(p).username}
-                  </span>
+                  </Link>
                   <button
                     onClick={() => setPartnerToRemove(p)} 
                     className="text-sm text-red-500 hover:underline"
