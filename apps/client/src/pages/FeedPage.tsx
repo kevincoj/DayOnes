@@ -3,6 +3,7 @@ import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import type { Post } from "../types/habit";
 import type { Habit } from "../types/habit";
+import Navbar from "../components/Navbar";
 
 export default function FeedPage() {
   const { token } = useContext(AuthContext);
@@ -96,16 +97,18 @@ export default function FeedPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-xl mx-auto">
+    <div>
+      <Navbar />
+      <div className="min-h-screen bg-gray-50 py-8 px-4">
+        <div className="max-w-xl mx-auto">
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Feed</h1>
-          <button
-            onClick={() => setShowForm((prev) => !prev)}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700"
-          >
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-bold text-gray-900">Feed</h1>
+            <button
+              onClick={() => setShowForm((prev) => !prev)}
+              className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700"
+            >
             {showForm ? "Cancel" : "+ New Post"}
           </button>
         </div>
@@ -216,6 +219,7 @@ export default function FeedPage() {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 }

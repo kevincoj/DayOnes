@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type { Habit } from "../types/habit";
+import Navbar from "../components/Navbar";
 
 const MONTHS = [
   "January",
@@ -286,6 +287,8 @@ export default function HabitDetailPage() {
   });
 
   return (
+    <div>
+      <Navbar />
     <div className="max-w-2xl mx-auto p-8 space-y-6">
       {/* Header */}
       <div className="flex items-start justify-between">
@@ -406,6 +409,7 @@ export default function HabitDetailPage() {
           )}
         </div>
       )}
+    </div>
     </div>
   );
 }

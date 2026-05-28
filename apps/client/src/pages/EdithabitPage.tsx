@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import type { HabitFormData } from "../types/habit"
 import { useAuth } from '../context/AuthContext'
+import Navbar from "../components/Navbar"
 import Step1 from "../components/wizard/Step1"
 import Step2 from "../components/wizard/Step2"
 import Step3 from "../components/wizard/Step3"
@@ -143,52 +144,55 @@ export default function EditHabitPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-md w-full max-w-lg p-8">
+    <div>
+      <Navbar />
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-md w-full max-w-lg p-8">
 
-        <p className="text-sm text-gray-400 mb-2">
-          Step {currentStep} of {TOTAL_STEPS}
-        </p>
+            <p className="text-sm text-gray-400 mb-2">
+            Step {currentStep} of {TOTAL_STEPS}
+            </p>
 
-        <div className="mb-8">
-          {renderStep()}
+            <div className="mb-8">
+            {renderStep()}
+            </div>
+
+            <div className="flex justify-between">
+            {currentStep > 1 ? (
+                <button
+                onClick={handleBack}
+                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                Back
+                </button>
+            ) : (
+                <div />
+            )}
+
+            {currentStep < TOTAL_STEPS ? (
+                <button
+                onClick={handleNext}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                Next
+                </button>
+            ) : (
+                <button
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className={`px-4 py-2 rounded-lg text-white transition-colors ${
+                    isSubmitting
+                    ? "bg-green-400 cursor-not-allowed"
+                    : "bg-green-600 hover:bg-green-700"
+                }`}
+                >
+                {isSubmitting ? "Saving..." : "Save Changes"}  
+                </button>
+            )}
+            </div>
+
         </div>
-
-        <div className="flex justify-between">
-          {currentStep > 1 ? (
-            <button
-              onClick={handleBack}
-              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              Back
-            </button>
-          ) : (
-            <div />
-          )}
-
-          {currentStep < TOTAL_STEPS ? (
-            <button
-              onClick={handleNext}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              Next
-            </button>
-          ) : (
-            <button
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              className={`px-4 py-2 rounded-lg text-white transition-colors ${
-                isSubmitting
-                  ? "bg-green-400 cursor-not-allowed"
-                  : "bg-green-600 hover:bg-green-700"
-              }`}
-            >
-              {isSubmitting ? "Saving..." : "Save Changes"}  
-            </button>
-          )}
         </div>
-
-      </div>
     </div>
   )
 }

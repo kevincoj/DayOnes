@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { HabitFormData } from "../types/habit";
 import { useAuth } from "../context/AuthContext";
+import Navbar from "../components/Navbar";
 import Step1 from "../components/wizard/Step1";
 import Step2 from "../components/wizard/Step2";
 import Step3 from "../components/wizard/Step3";
@@ -123,6 +124,8 @@ export default function HabitWizard() {
   }
 
   return (
+    <div>
+        <Navbar />
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-md w-full max-w-lg p-8">
         {/* Progress indicator */}
@@ -173,6 +176,7 @@ export default function HabitWizard() {
           )}
         </div>
       </div>
+    </div>
     </div>
   );
 }
