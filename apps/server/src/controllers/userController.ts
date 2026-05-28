@@ -4,6 +4,7 @@ import { prisma } from "../lib/prisma";
 // GET /api/users/:username
 export async function getProfile(req: Request, res: Response) {
   const username = req.params.username as string;
+  const requesterId = (req as any).user.id as number;
 
   const user = await prisma.user.findUnique({
     where: { username },
@@ -90,6 +91,11 @@ export async function getProfile(req: Request, res: Response) {
   const following = user.partnersSent.map((p) => p.partner);
   const followers = user.partnersReceived.map((p) => p.user);
 
+  const isPartner =
+    user.id !== requesterId &&
+    (following.some((u) => u.id === requesterId) ||
+      followers.some((u) => u.id === requesterId));
+
   res.json({
     id: user.id,
     username: user.username,
@@ -97,6 +103,7 @@ export async function getProfile(req: Request, res: Response) {
     bio: user.bio,
     avatarUrl: user.avatarUrl,
     isPublic: user.isPublic,
+    isPartner,
     createdAt: user.createdAt,
     stats: {
       currentStreak: bestStreak,
@@ -132,17 +139,38 @@ export async function updateProfile(req: Request, res: Response) {
 // GET /api/users/:username/posts
 export async function getUserPosts(req: Request, res: Response) {
   const username = req.params.username as string;
+  const requesterId = (req as any).user.id as number;
   const page = parseInt((req.query.page as string) || "1");
   const limit = 10;
   const offset = (page - 1) * limit;
 
-  const user = await prisma.user.findUnique({ where: { username } });
+  const user = await prisma.user.findUnique({
+    where: { username },
+    select: { id: true, isPublic: true },
+  });
   if (!user) {
     res.status(404).json({ error: "User not found" });
     return;
   }
 
-  // Fetch one extra to know if there's a next page
+  if (!user.isPublic && user.id !== requesterId) {
+    const partnership = await prisma.partner.findFirst({
+      where: {
+        status: "accepted",
+        OR: [
+          { userId: requesterId, partnerId: user.id },
+          { userId: user.id, partnerId: requesterId },
+        ],
+      },
+      select: { id: true },
+    });
+
+    if (!partnership) {
+      res.json({ posts: [], hasMore: false, isPrivate: true });
+      return;
+    }
+  }
+
   const posts = await prisma.post.findMany({
     where: { userId: user.id },
     orderBy: { createdAt: "desc" },
@@ -155,7 +183,7 @@ export async function getUserPosts(req: Request, res: Response) {
   });
 
   const hasMore = posts.length > limit;
-  res.json({ posts: posts.slice(0, limit), hasMore });
+  res.json({ posts: posts.slice(0, limit), hasMore, isPrivate: false });
 }
 
 // GET /api/users/me/friends-feed
