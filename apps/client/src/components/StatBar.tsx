@@ -16,16 +16,11 @@ export default function StatBar({ stats }: Props) {
       value: stats.activeHabits > 0 ? `${stats.activeHabits}` : "—",
       suffix: "",
     },
-    {
-      label: "This Month",
-      value: stats.activeHabits > 0 ? `${stats.completionRate}%` : "—",
-      suffix: "",
-    },
   ];
 
   return (
     <div className="bg-white border-b border-gray-200">
-      <div className="max-w-2xl mx-auto px-6 py-1 grid grid-cols-3 divide-x divide-gray-200">
+      <div className="max-w-2xl mx-auto px-6 py-1 grid grid-cols-2 divide-x divide-gray-200">
         {tiles.map((tile) => (
           <div key={tile.label} className="flex flex-col items-center py-3 px-2">
             <span className="text-xl font-bold text-gray-900">

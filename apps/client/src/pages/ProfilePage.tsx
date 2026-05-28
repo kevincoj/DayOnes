@@ -72,12 +72,13 @@ export default function ProfilePage() {
       { headers: { Authorization: `Bearer ${token}` } }
     );
     const data = await res.json();
+    const incoming = data.posts ?? [];
     if (page === 1) {
-      setPosts(data.posts);
+      setPosts(incoming);
     } else {
-      setPosts((prev) => [...prev, ...data.posts]);
+      setPosts((prev) => [...prev, ...incoming]);
     }
-    setHasMorePosts(data.hasMore);
+    setHasMorePosts(Boolean(data.hasMore));
     setPostsPage(page);
   }
 
@@ -115,7 +116,8 @@ export default function ProfilePage() {
   }
 
   const isOwnProfile = authUser?.username === profile.username;
-  const isPrivateAndNotOwn = !profile.isPublic && !isOwnProfile;
+  const canViewPrivate = isOwnProfile || profile.isPartner;
+  const isPrivateAndNotOwn = !profile.isPublic && !canViewPrivate;
 
   return (
     <div className="min-h-screen bg-gray-50">
