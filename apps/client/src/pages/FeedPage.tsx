@@ -4,9 +4,11 @@ import { AuthContext } from "../context/AuthContext";
 import type { Post } from "../types/habit";
 import type { Habit } from "../types/habit";
 import Navbar from "../components/Navbar";
+import DeleteModal from "../components/DeleteModal";
 
 export default function FeedPage() {
-  const { token } = useContext(AuthContext);
+  const { user, token } = useContext(AuthContext);
+  const [postToDelete, setPostToDelete] = useState<number | null>(null);
 
   // --- state ---
   const [posts, setPosts] = useState<Post[]>([]);
@@ -87,6 +89,12 @@ export default function FeedPage() {
     });
     setPosts((prev) => prev.filter((p) => p.id !== postId));
   };
+
+  const handleConfirmDelete = async () => {
+  if (!postToDelete) return;
+  await handleDelete(postToDelete);
+  setPostToDelete(null);
+};
 
   if (isLoading) {
     return (
@@ -204,15 +212,17 @@ export default function FeedPage() {
 
                 {/* Timestamp + delete */}
                 <div className="flex items-center justify-between mt-3">
-                  <p className="text-xs text-gray-400">
+                <p className="text-xs text-gray-400">
                     {new Date(post.createdAt).toLocaleDateString()}
-                  </p>
-                  <button
-                    onClick={() => handleDelete(post.id)}
+                </p>
+                {post.userId === user?.id && (
+                    <button
+                    onClick={() => setPostToDelete(post.id)}
                     className="text-xs text-red-400 hover:text-red-600"
-                  >
+                    >
                     delete
-                  </button>
+                    </button>
+                )}
                 </div>
               </div>
             ))}
@@ -220,6 +230,13 @@ export default function FeedPage() {
         )}
       </div>
     </div>
+        {postToDelete && (
+          <DeleteModal
+            message={`Are you sure you want to delete this post? This can't be undone.`}
+            onConfirm={handleConfirmDelete}
+            onCancel={() => setPostToDelete(null)}
+          />
+        )}
     </div>
   );
 }

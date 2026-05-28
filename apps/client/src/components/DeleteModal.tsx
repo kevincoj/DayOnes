@@ -1,23 +1,17 @@
 interface Props {
-  habitName: string
+  message: string
   onConfirm: () => void
   onCancel: () => void
 }
 
-export default function DeleteModal({ habitName, onConfirm, onCancel }: Props) {
+export default function DeleteModal({ message, onConfirm, onCancel }: Props) {
   return (
-    // Full screen dark overlay
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      
-      {/* Modal box */}
+    <div className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4">
         <h2 className="text-lg font-semibold text-gray-800 mb-2">
-          Delete habit?
+          Are you sure?
         </h2>
-        <p className="text-sm text-gray-500 mb-6">
-          Are you sure you want to delete <span className="font-medium text-gray-700">"{habitName}"</span>? This can't be undone.
-        </p>
-
+        <p className="text-sm text-gray-500 mb-6">{message}</p>
         <div className="flex gap-3 justify-end">
           <button
             onClick={onCancel}

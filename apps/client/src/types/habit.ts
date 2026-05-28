@@ -32,6 +32,7 @@ export interface Habit {
 
 export interface Post {
   id: number;
+  userId: number;
   content: string;
   visibility: string;
   createdAt: string;

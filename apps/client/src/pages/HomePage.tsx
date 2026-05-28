@@ -114,7 +114,7 @@ export default function HomePage() {
 
         {habitToDelete && (
           <DeleteModal
-            habitName={habitToDelete.name}
+            message={`Are you sure you want to delete "${habitToDelete.name}"? This can't be undone.`}
             onConfirm={handleConfirmDelete}
             onCancel={() => setHabitToDelete(null)}
           />
