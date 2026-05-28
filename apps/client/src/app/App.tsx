@@ -7,6 +7,7 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import EditHabitPage from "../pages/EdithabitPage";
 import HabitDetailPage from "../pages/HabitDetailPage";
 import FeedPage from "../pages/FeedPage";
+import PartnersPage from "../pages/PartnersPage";
 
 export default function App() {
   return (
@@ -51,6 +52,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <FeedPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/partners"
+          element={
+            <ProtectedRoute>
+              <PartnersPage />
             </ProtectedRoute>
           }
         />

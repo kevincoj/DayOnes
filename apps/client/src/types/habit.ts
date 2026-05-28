@@ -42,3 +42,18 @@ export interface Post {
     name: string;
   };
 }
+
+export interface PartnerUser {
+  id: number;
+  username: string;
+  email: string;
+}
+
+export interface Partner {
+  id: number;
+  userId: number;
+  partnerId: number;
+  status: string;
+  user: PartnerUser;
+  partner: PartnerUser;
+}
