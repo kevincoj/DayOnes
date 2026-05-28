@@ -57,3 +57,44 @@ export interface Partner {
   user: PartnerUser;
   partner: PartnerUser;
 }
+
+export interface FriendUser {
+  id: number;
+  username: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+}
+
+export interface ProfileStats {
+  currentStreak: number;
+  activeHabits: number;
+  completionRate: number;
+}
+
+export interface UserProfile {
+  id: number;
+  username: string;
+  displayName: string | null;
+  bio: string | null;
+  avatarUrl: string | null;
+  isPublic: boolean;
+  createdAt: string;
+  stats: ProfileStats;
+  following: FriendUser[];
+  followers: FriendUser[];
+}
+
+export interface ProfilePost {
+  id: number;
+  content: string;
+  visibility: string;
+  createdAt: string;
+  user: {
+    username: string;
+    displayName: string | null;
+    avatarUrl: string | null;
+  };
+  habit: {
+    name: string;
+  };
+}

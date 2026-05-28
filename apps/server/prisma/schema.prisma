@@ -16,6 +16,10 @@ model User {
   email            String         @unique
   passwordHash     String
   username         String         @unique
+  displayName      String?
+  bio              String?
+  avatarUrl        String?
+  isPublic         Boolean        @default(true)
   createdAt        DateTime       @default(now())
   habits           Habit[]
   habitLogs        HabitLog[]
