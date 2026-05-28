@@ -28,6 +28,7 @@ export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
   const [friendsView, setFriendsView] = useState<FriendsView>(null);
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
   // useRef: a sticky note that tracks which tabs we've already fetched.
   // Unlike useState, changing a ref does NOT cause a re-render.
@@ -166,43 +167,58 @@ export default function ProfilePage() {
           <div className="max-w-2xl mx-auto px-4 py-5 flex flex-col gap-4">
             {/* My Posts tab */}
             {activeTab === "myPosts" && (
-              <>
-                {posts.length === 0 ? (
-                  <div className="text-center py-16">
-                    <p className="text-5xl mb-4">📋</p>
-                    <p className="text-base font-semibold text-gray-600">No posts yet.</p>
-                    <p className="text-sm text-gray-400 mt-1">
-                      Log a habit to share your first check-in!
-                    </p>
-                  </div>
-                ) : (
-                  posts.map((post) => (
-                    <PostCard
-                      key={post.id}
-                      post={post}
-                      isOwn={isOwnProfile}
-                      onDelete={(id) => {
-                        // delete logic — we'll wire this up properly when we build edit/delete on profile
-                        fetch(`http://localhost:3001/api/posts/${id}`, {
-                          method: "DELETE",
-                          headers: { Authorization: `Bearer ${token}` },
-                        }).then(() => {
-                          setPosts((prev) => prev.filter((p) => p.id !== id));
-                        });
-                      }}
+            <>
+              {posts.length === 0 ? (
+                <div className="text-center py-16">
+                  <p className="text-5xl mb-4">📋</p>
+                  <p className="text-base font-semibold text-gray-600">No posts yet.</p>
+                  <p className="text-sm text-gray-400 mt-1">
+                    Log a habit to share your first check-in!
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {openMenuId !== null && (
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setOpenMenuId(null)}
                     />
-                  ))
-                )}
-                {hasMorePosts && (
-                  <button
-                    onClick={() => fetchUserPosts(postsPage + 1)}
-                    className="mx-auto text-sm text-indigo-600 hover:underline py-2"
-                  >
-                    Load more
-                  </button>
-                )}
-              </>
-            )}
+                  )}
+                  {posts.map((post) => (
+                    <div
+                      key={post.id}
+                      className={openMenuId === post.id ? "relative z-50" : ""}
+                    >
+                      <PostCard
+                        post={post}
+                        isOwn={isOwnProfile}
+                        isMenuOpen={openMenuId === post.id}
+                        onToggleMenu={() =>
+                          setOpenMenuId((prev) => (prev === post.id ? null : post.id))
+                        }
+                        onDelete={(id) => {
+                          fetch(`http://localhost:3001/api/posts/${id}`, {
+                            method: "DELETE",
+                            headers: { Authorization: `Bearer ${token}` },
+                          }).then(() => {
+                            setPosts((prev) => prev.filter((p) => p.id !== id));
+                          });
+                        }}
+                      />
+                    </div>
+                  ))}
+                </>
+              )}
+              {hasMorePosts && (
+                <button
+                  onClick={() => fetchUserPosts(postsPage + 1)}
+                  className="mx-auto text-sm text-indigo-600 hover:underline py-2"
+                >
+                  Load more
+                </button>
+              )}
+            </>
+          )}
 
             {/* Friends tab */}
             {activeTab === "friends" && (

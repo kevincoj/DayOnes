@@ -1,5 +1,4 @@
 import type { ProfilePost } from "../types/habit";
-import { useState } from "react";
 import KebabMenu from "./KebabMenu";
 
 interface Props {
@@ -7,11 +6,11 @@ interface Props {
   showAvatar?: boolean;
   isOwn?: boolean;
   onDelete?: (id: number) => void;
+  isMenuOpen?: boolean;
+  onToggleMenu?: () => void;
 }
 
-export default function PostCard({ post, showAvatar = false, isOwn = false, onDelete }: Props) {
-  const [menuOpen, setMenuOpen] = useState(false);
-
+export default function PostCard({ post, showAvatar = false, isOwn = false, onDelete, isMenuOpen = false, onToggleMenu }: Props) {
   const initials = (post.user.displayName || post.user.username)
     .split(" ")
     .map((w) => w[0])
@@ -43,13 +42,12 @@ export default function PostCard({ post, showAvatar = false, isOwn = false, onDe
         </div>
       )}
 
-      {/* Top row: habit name + kebab */}
       <div className="flex items-start justify-between">
         <p className="text-xs font-semibold text-indigo-600 mb-1">{post.habit.name}</p>
-        {isOwn && onDelete && (
+        {isOwn && onDelete && onToggleMenu && (
           <KebabMenu
-            isOpen={menuOpen}
-            onToggle={() => setMenuOpen((prev) => !prev)}
+            isOpen={isMenuOpen}
+            onToggle={onToggleMenu}
             items={[
               {
                 label: "✏️ Edit",
