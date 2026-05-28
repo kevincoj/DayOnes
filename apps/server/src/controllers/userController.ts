@@ -3,7 +3,7 @@ import { prisma } from "../lib/prisma";
 
 // GET /api/users/:username
 export async function getProfile(req: Request, res: Response) {
-  const { username } = req.params;
+  const username = req.params.username as string;
 
   const user = await prisma.user.findUnique({
     where: { username },
@@ -131,7 +131,7 @@ export async function updateProfile(req: Request, res: Response) {
 
 // GET /api/users/:username/posts
 export async function getUserPosts(req: Request, res: Response) {
-  const { username } = req.params;
+  const username = req.params.username as string;
   const page = parseInt((req.query.page as string) || "1");
   const limit = 10;
   const offset = (page - 1) * limit;
