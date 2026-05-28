@@ -1,28 +1,26 @@
-import { useState } from "react";
 import type { Habit } from "../types/habit";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 interface Props {
   habit: Habit;
   onDelete: (id: number) => void;
   onCheckIn: (id: number) => void;
+  isMenuOpen: boolean;
+  onToggleMenu: () => void;
 }
 
-export default function HabitCard({ habit, onDelete, onCheckIn }: Props) {
-  const [menuOpen, setMenuOpen] = useState(false);
+export default function HabitCard({ habit, onDelete, onCheckIn, isMenuOpen, onToggleMenu }: Props) {
   const [checking, setChecking] = useState(false);
   const navigate = useNavigate();
 
   async function handleCheckIn() {
     setChecking(true);
     const token = localStorage.getItem("token");
-    const res = await fetch(
-      `http://localhost:3001/api/habits/${habit.id}/log`,
-      {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      },
-    );
+    const res = await fetch(`http://localhost:3001/api/habits/${habit.id}/log`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    });
     if (res.ok) {
       onCheckIn(habit.id);
     }
@@ -31,8 +29,8 @@ export default function HabitCard({ habit, onDelete, onCheckIn }: Props) {
 
   return (
     <li
-      onClick={() => navigate(`/habits/${habit.id}`)}
-      className="border rounded-lg p-4 shadow-sm relative cursor-pointer transition-all duration-150 hover:shadow-md hover:scale-[1.01] hover:bg-gray-50"
+        onClick={() => navigate(`/habits/${habit.id}`)}
+        className={`border rounded-lg p-4 shadow-sm relative cursor-pointer transition-all duration-150 hover:shadow-md hover:scale-[1.01] hover:bg-gray-50 ${isMenuOpen ? "z-50" : ""}`}
     >
       <div className="flex justify-between items-start">
         <div className="flex-1">
@@ -72,16 +70,16 @@ export default function HabitCard({ habit, onDelete, onCheckIn }: Props) {
           {/* 3-dot menu */}
           <div className="relative">
             <button
-              onClick={() => setMenuOpen((prev) => !prev)}
-              className="text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-100"
+              onClick={onToggleMenu}
+              className={`text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-100 ${isMenuOpen ? "bg-gray-100 text-gray-600" : ""}`}
             >
               ⋯
             </button>
-            {menuOpen && (
-              <div className="absolute right-0 mt-1 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+            {isMenuOpen && (
+              <div className="absolute right-0 mt-1 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                 <button
                   onClick={() => {
-                    setMenuOpen(false);
+                    onToggleMenu();
                     navigate(`/habits/${habit.id}/edit`);
                   }}
                   className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg"
@@ -90,7 +88,7 @@ export default function HabitCard({ habit, onDelete, onCheckIn }: Props) {
                 </button>
                 <button
                   onClick={() => {
-                    setMenuOpen(false);
+                    onToggleMenu();
                     onDelete(habit.id);
                   }}
                   className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-b-lg"
