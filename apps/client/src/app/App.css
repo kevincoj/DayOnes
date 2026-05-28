@@ -182,3 +182,71 @@
     border-right-color: var(--border);
   }
 }
+.profile-page {
+  display: flex;
+  justify-content: center;
+  padding: 60px 20px;
+  background: var(--bg);
+}
+
+.profile-card {
+  width: 100%;
+  max-width: 500px;
+  background: var(--social-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: var(--shadow);
+}
+
+.profile-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 20px;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 20px;
+  text-align: left;
+}
+
+.profile-info label {
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.profile-info input,
+.profile-info textarea {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+  font-size: 16px;
+}
+
+.profile-info textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.save-btn {
+  margin-top: 10px;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: var(--accent);
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.save-btn:hover {
+  opacity: 0.9;
+}

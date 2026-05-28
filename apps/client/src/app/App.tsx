@@ -1,7 +1,4 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './App.css'
 
 function App() {
@@ -10,11 +7,6 @@ function App() {
   return (
     <>
       <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
         <div>
           <h1>Get started</h1>
           <p>
@@ -115,6 +107,32 @@ function App() {
 
       <div className="ticks"></div>
       <section id="spacer"></section>
+    <section className="profile-page">
+  <div className="profile-card">
+    <img
+      src="https://i.pravatar.cc/150?img=32"
+      alt="Profile"
+      className="profile-image"
+    />
+
+    <h2>Profile Settings</h2>
+
+    <div className="profile-info">
+      <label>Name</label>
+      <input type="text" placeholder="Enter your name" />
+
+      <label>Email</label>
+      <input type="email" placeholder="Enter your email" />
+
+      <label>Bio</label>
+      <textarea placeholder="Tell us about yourself"></textarea>
+
+      <button className="save-btn">
+        Save Changes
+      </button>
+    </div>
+  </div>
+</section>
     </>
   )
 }
