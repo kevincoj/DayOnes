@@ -6,6 +6,7 @@ import HabitWizard from "../pages/HabitWizard";
 import ProtectedRoute from "../components/ProtectedRoute";
 import EditHabitPage from "../pages/EdithabitPage";
 import HabitDetailPage from "../pages/HabitDetailPage";
+import FeedPage from "../pages/FeedPage";
 
 export default function App() {
   return (
@@ -42,6 +43,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <EditHabitPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/feed"
+          element={
+            <ProtectedRoute>
+              <FeedPage />
             </ProtectedRoute>
           }
         />

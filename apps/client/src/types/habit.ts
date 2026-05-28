@@ -29,3 +29,16 @@ export interface Habit {
   microVersion: string | null
   reward: string | null
 }
+
+export interface Post {
+  id: number;
+  content: string;
+  visibility: string;
+  createdAt: string;
+  user: {
+    username: string;
+  };
+  habit: {
+    name: string;
+  };
+}

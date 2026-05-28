@@ -6,6 +6,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import authRoutes from './src/routes/auth';
 import habitRoutes from './src/routes/habits';
+import postRoutes from './src/routes/posts';
 
 
 
@@ -22,6 +23,7 @@ app.get('/health', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/habits', habitRoutes);
+app.use('/api/posts', postRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
