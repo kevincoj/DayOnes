@@ -41,6 +41,16 @@ export default function Navbar() {
         >
           Feed
         </button>
+        <button
+          onClick={() => navigate("/partners")}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            isActive("/partners")
+              ? "bg-indigo-50 text-indigo-600"
+              : "text-gray-600 hover:bg-gray-100"
+          }`}
+        >
+          Partners
+        </button>
       </div>
 
       {/* Right: sign out */}
