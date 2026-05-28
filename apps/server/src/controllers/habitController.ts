@@ -227,7 +227,7 @@ export async function deleteHabit(req: Request, res: Response) {
 export async function logHabit(req: Request, res: Response) {
   const userId = (req as any).user.id
   const habitId = parseInt((req as any).params.id)
-  const { date: dateParam } = req.body
+  const { date: dateParam } = req.body || {}
 
   const targetDate = dateParam ? new Date(dateParam + "T12:00:00") : new Date()
   targetDate.setHours(0, 0, 0, 0)
