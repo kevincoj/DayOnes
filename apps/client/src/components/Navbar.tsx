@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
   function handleSignOut() {
     logout();
@@ -51,6 +51,18 @@ export default function Navbar() {
         >
           Partners
         </button>
+        {user && (
+          <button
+            onClick={() => navigate(`/profile/${user.username}`)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              location.pathname.startsWith("/profile")
+                ? "bg-indigo-50 text-indigo-600"
+                : "text-gray-600 hover:bg-gray-100"
+            }`}
+          >
+            Profile
+          </button>
+        )}
       </div>
 
       {/* Right: sign out */}

@@ -8,6 +8,7 @@ import EditHabitPage from "../pages/EdithabitPage";
 import HabitDetailPage from "../pages/HabitDetailPage";
 import FeedPage from "../pages/FeedPage";
 import PartnersPage from "../pages/PartnersPage";
+import ProfilePage from "../pages/ProfilePage";
 
 export default function App() {
   return (
@@ -60,6 +61,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <PartnersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile/:username"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
             </ProtectedRoute>
           }
         />

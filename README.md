@@ -145,11 +145,15 @@ To be rendered as a proper ER diagram in the repo. Core entities and relationshi
 ```sql
 -- Users
 users (
-  id          SERIAL PRIMARY KEY,
-  email       VARCHAR UNIQUE NOT NULL,
+  id            SERIAL PRIMARY KEY,
+  email         VARCHAR UNIQUE NOT NULL,
   password_hash VARCHAR NOT NULL,
-  username    VARCHAR UNIQUE NOT NULL,
-  created_at  TIMESTAMP DEFAULT NOW()
+  username      VARCHAR UNIQUE NOT NULL,
+  display_name  VARCHAR,
+  bio           TEXT,
+  avatar_url    VARCHAR,
+  is_public     BOOLEAN DEFAULT TRUE,
+  created_at    TIMESTAMP DEFAULT NOW()
 )
 
 -- Habits
@@ -256,6 +260,15 @@ GET    /api/partners            List current partners
 GET    /api/partners/:id/habits View partner's shared habit data
 ```
 
+### Users / Profile
+```
+GET    /api/users/:username          Get public profile + stats (streak, habits, completion rate)
+PUT    /api/users/me                 Update own profile (displayName, bio, isPublic)
+GET    /api/users/:username/posts    Get paginated posts for a user (10 per page)
+GET    /api/users/me/friends-feed    Get paginated feed from accepted partners
+GET    /api/users/search?q=          Search users by username
+```
+
 ### Notifications
 ```
 GET    /api/notifications       Get all notifications for user
@@ -293,6 +306,13 @@ POST   /api/notifications       Create/schedule a reminder
   └── Notification schedule + quiet hours
   └── Partner visibility controls
   └── Account info
+
+/profile/:username        User profile page
+  └── Profile header (avatar, name, bio)
+  └── Stats bar (streak, active habits, completion rate)
+  └── My Posts tab + Friends tab
+  └── Edit Profile modal (display name, bio, privacy toggle)
+  └── Following / Followers modal
 
 /search?q=                Search habits or posts
 ```
