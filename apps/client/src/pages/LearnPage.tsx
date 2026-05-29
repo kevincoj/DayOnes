@@ -259,16 +259,13 @@ export default function LearnPage() {
           </section>
         </AnimatedSection>
 
-        <hr className="border-gray-100 mb-10" />
 
         {/* ── CTA ── */}
         <AnimatedSection>
           <section className="text-center py-4 mb-6">
-            <p className="text-gray-400 text-xs uppercase tracking-widest mb-3">Ready to start?</p>
             <h2 className="text-xl font-bold text-gray-900 mb-2">
               "Every action is a vote for the person<br />you want to become."
             </h2>
-            <p className="text-gray-500 text-sm mb-6">Start small. Stay consistent. The identity follows.</p>
             <button
               onClick={() => navigate("/habits/new")}
               className="bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
