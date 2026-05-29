@@ -88,6 +88,7 @@ export interface UserProfile {
 
 export interface ProfilePost {
   id: number;
+  userId: number; 
   content: string;
   visibility: string;
   createdAt: string;
