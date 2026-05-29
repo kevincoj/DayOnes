@@ -1,16 +1,12 @@
 import { useState, useEffect, useContext } from "react";
-<<<<<<< HEAD
-import { Link } from "react-router-dom";
-=======
-import { useNavigate } from "react-router-dom";
->>>>>>> 5c7669b (Clickable usernames in Partners)
-import { AuthContext } from "../context/AuthContext";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import type { Partner, PartnerUser } from "../types/habit";
 import Navbar from "../components/Navbar";
-import DeleteModal from "../components/DeleteModal"; 
+import DeleteModal from "../components/DeleteModal";
 
 export default function PartnersPage() {
-  const { user, token } = useContext(AuthContext);
+  const { user, token } = useAuth();
   const navigate = useNavigate();
   const [partners, setPartners] = useState<Partner[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -46,7 +42,7 @@ export default function PartnersPage() {
       try {
         const res = await fetch(
           `http://localhost:3001/api/users/search?q=${searchQuery}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          { headers: { Authorization: `Bearer ${token}` } },
         );
         const data = await res.json();
         setSearchResults(data);
@@ -84,7 +80,7 @@ export default function PartnersPage() {
     });
     if (res.ok) {
       setPartners((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, status: "accepted" } : p))
+        prev.map((p) => (p.id === id ? { ...p, status: "accepted" } : p)),
       );
     }
   };
@@ -96,7 +92,7 @@ export default function PartnersPage() {
     });
     if (res.ok) {
       setPartners((prev) => prev.filter((p) => p.id !== id));
-      setPartnerToRemove(null); 
+      setPartnerToRemove(null);
     }
   };
 
@@ -105,11 +101,11 @@ export default function PartnersPage() {
   };
 
   const pending = partners.filter(
-    (p) => p.status === "pending" && p.partnerId === user?.id
+    (p) => p.status === "pending" && p.partnerId === user?.id,
   );
   const accepted = partners.filter((p) => p.status === "accepted");
   const sentPending = partners.filter(
-    (p) => p.status === "pending" && p.userId === user?.id
+    (p) => p.status === "pending" && p.userId === user?.id,
   );
 
   return (
@@ -132,9 +128,7 @@ export default function PartnersPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
           />
-          {message && (
-            <p className="text-sm mt-2 text-indigo-600">{message}</p>
-          )}
+          {message && <p className="text-sm mt-2 text-indigo-600">{message}</p>}
           {isSearching && (
             <p className="text-sm text-gray-400 mt-2">Searching...</p>
           )}
@@ -248,14 +242,14 @@ export default function PartnersPage() {
                   key={p.id}
                   className="flex items-center justify-between py-3"
                 >
-                  <span
-                    className="text-sm font-medium text-gray-800 cursor-pointer hover:text-indigo-600"
-                    onClick={() => navigate(`/profile/${getOtherUser(p).username}`)}
+                  <Link
+                    to={`/profile/${getOtherUser(p).username}`}
+                    className="text-sm font-medium text-gray-800 hover:text-indigo-600 hover:underline"
                   >
                     @{getOtherUser(p).username}
                   </Link>
                   <button
-                    onClick={() => setPartnerToRemove(p)} 
+                    onClick={() => setPartnerToRemove(p)}
                     className="text-sm text-red-500 hover:underline"
                   >
                     Remove
