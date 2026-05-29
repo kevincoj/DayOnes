@@ -40,8 +40,17 @@ export default function HabitCard({ habit, onDelete, onCheckIn, isMenuOpen, onTo
           )}
           <div className="flex items-center gap-4 mt-2">
             <p className="text-sm text-gray-400">
-              {habit.logsThisWeek} / {habit.frequency} days this week
-            </p>
+  {habit.logsThisWeek} / {habit.frequency} days this week
+</p>
+<div className="mt-2 h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+  <div
+    className="h-full rounded-full transition-all duration-300"
+    style={{
+      width: `${Math.min((habit.logsThisWeek / parseInt(habit.frequency)) * 100, 100)}%`,
+      backgroundColor: habit.logsThisWeek >= parseInt(habit.frequency) ? '#22c55e' : '#6366f1',
+    }}
+  />
+</div>
             {habit.currentStreak > 0 && (
               <p className="text-sm text-orange-400">
                 🔥 {habit.currentStreak} day streak
