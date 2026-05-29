@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import type { Post } from "../types/habit";
@@ -10,6 +11,7 @@ import EditPostModal from "../components/EditPostModal";
 
 export default function FeedPage() {
   const { user, token } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [postToDelete, setPostToDelete] = useState<number | null>(null);
   const [postToEdit, setPostToEdit] = useState<Post | null>(null);
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
@@ -190,7 +192,10 @@ export default function FeedPage() {
                   >
                     <div className="flex items-start justify-between mb-2">
                       <div>
-                        <span className="font-medium text-gray-900 text-sm">
+                        <span
+                          className="font-medium text-gray-900 text-sm cursor-pointer hover:text-indigo-600"
+                          onClick={(e) => { e.stopPropagation(); navigate(`/profile/${post.user.username}`); }}
+                        >
                           @{post.user.username}
                         </span>
                         <span className="text-gray-400 text-xs ml-2">
