@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 import type { Post } from "../types/habit";
 import type { Habit } from "../types/habit";
 import Navbar from "../components/Navbar";
@@ -10,7 +9,7 @@ import KebabMenu from "../components/KebabMenu";
 import EditPostModal from "../components/EditPostModal";
 
 export default function FeedPage() {
-  const { user, token } = useContext(AuthContext);
+  const { user, token } = useAuth();
   const navigate = useNavigate();
   const [postToDelete, setPostToDelete] = useState<number | null>(null);
   const [postToEdit, setPostToEdit] = useState<Post | null>(null);
