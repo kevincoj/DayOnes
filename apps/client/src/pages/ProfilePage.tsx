@@ -7,6 +7,7 @@ import StatBar from "../components/StatBar";
 import PostCard from "../components/PostCard";
 import EditProfileModal from "../components/EditProfileModal";
 import FriendsModal from "../components/FriendsModal";
+import DeleteModal from "../components/DeleteModal";
 import type { UserProfile, ProfilePost } from "../types/habit";
 
 type Tab = "myPosts" | "friends";
@@ -28,6 +29,7 @@ export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
   const [friendsView, setFriendsView] = useState<FriendsView>(null);
+  const [postToDelete, setPostToDelete] = useState<number | null>(null);
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
   // useRef: a sticky note that tracks which tabs we've already fetched.
@@ -66,6 +68,16 @@ export default function ProfilePage() {
       fetchFriendsPosts(1);
     }
   }, [activeTab, profile]);
+
+async function handleConfirmDelete() {
+  if (!postToDelete) return;
+  await fetch(`http://localhost:3001/api/posts/${postToDelete}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  setPosts((prev) => prev.filter((p) => p.id !== postToDelete));
+  setPostToDelete(null);
+}
 
   async function fetchUserPosts(page: number) {
     const res = await fetch(
@@ -198,14 +210,7 @@ export default function ProfilePage() {
                         onToggleMenu={() =>
                           setOpenMenuId((prev) => (prev === post.id ? null : post.id))
                         }
-                        onDelete={(id) => {
-                          fetch(`http://localhost:3001/api/posts/${id}`, {
-                            method: "DELETE",
-                            headers: { Authorization: `Bearer ${token}` },
-                          }).then(() => {
-                            setPosts((prev) => prev.filter((p) => p.id !== id));
-                          });
-                        }}
+                        onDelete={(id) => setPostToDelete(id)}
                       />
                     </div>
                   ))}
@@ -279,6 +284,16 @@ export default function ProfilePage() {
           onClose={() => setFriendsView(null)}
         />
       )}
+    {postToDelete && (
+        <DeleteModal
+          message="Are you sure you want to delete this post? This can't be undone."
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setPostToDelete(null)}
+        />
+      )}
+    </div>
+  );
+}
     </div>
   );
 }
