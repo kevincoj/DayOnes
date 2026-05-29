@@ -79,6 +79,7 @@ export interface UserProfile {
   bio: string | null;
   avatarUrl: string | null;
   isPublic: boolean;
+  isPartner: boolean;
   createdAt: string;
   stats: ProfileStats;
   following: FriendUser[];

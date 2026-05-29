@@ -129,7 +129,7 @@ async function handleConfirmDelete() {
   }
 
   const isOwnProfile = authUser?.username === profile.username;
-  const canViewPrivate = isOwnProfile || profile.isPartner;
+  const canViewPrivate = isOwnProfile || (profile.isPartner ?? false);
   const isPrivateAndNotOwn = !profile.isPublic && !canViewPrivate;
 
   return (
@@ -291,9 +291,6 @@ async function handleConfirmDelete() {
           onCancel={() => setPostToDelete(null)}
         />
       )}
-    </div>
-  );
-}
     </div>
   );
 }
