@@ -6,10 +6,12 @@ import type { Habit } from "../types/habit";
 import Navbar from "../components/Navbar";
 import DeleteModal from "../components/DeleteModal";
 import KebabMenu from "../components/KebabMenu";
+import EditPostModal from "../components/EditPostModal";
 
 export default function FeedPage() {
   const { user, token } = useContext(AuthContext);
   const [postToDelete, setPostToDelete] = useState<number | null>(null);
+  const [postToEdit, setPostToEdit] = useState<Post | null>(null);
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
   const [posts, setPosts] = useState<Post[]>([]);
@@ -213,7 +215,7 @@ export default function FeedPage() {
                             items={[
                               {
                                 label: "✏️ Edit",
-                                onClick: () => {},
+                                onClick: () => { setPostToEdit(post); setOpenMenuId(null); },
                               },
                               {
                                 label: "🗑️ Delete",
@@ -238,6 +240,25 @@ export default function FeedPage() {
           )}
         </div>
       </div>
+
+      {postToEdit && (
+        <EditPostModal
+          postId={postToEdit.id}
+          initialContent={postToEdit.content}
+          initialVisibility={postToEdit.visibility}
+          onClose={() => setPostToEdit(null)}
+          onSave={(updatedContent, updatedVisibility) => {
+            setPosts((prev) =>
+              prev.map((p) =>
+                p.id === postToEdit.id
+                  ? { ...p, content: updatedContent, visibility: updatedVisibility }
+                  : p
+              )
+            );
+            setPostToEdit(null);
+          }}
+        />
+      )}
 
       {postToDelete && (
         <DeleteModal
