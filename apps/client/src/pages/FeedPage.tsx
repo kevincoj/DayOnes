@@ -1,16 +1,14 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import type { Post } from "../types/habit";
 import type { Habit } from "../types/habit";
 import Navbar from "../components/Navbar";
 import DeleteModal from "../components/DeleteModal";
-import KebabMenu from "../components/KebabMenu";
 import EditPostModal from "../components/EditPostModal";
+import PostCard from "../components/PostCard";
 
 export default function FeedPage() {
   const { user, token } = useAuth();
-  const navigate = useNavigate();
   const [postToDelete, setPostToDelete] = useState<number | null>(null);
   const [postToEdit, setPostToEdit] = useState<Post | null>(null);
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
@@ -187,56 +185,18 @@ export default function FeedPage() {
                 {posts.map((post) => (
                   <div
                     key={post.id}
-                    className={`bg-white rounded-xl shadow-sm border border-gray-200 p-4 ${openMenuId === post.id ? "relative z-50" : ""}`}
+                    className={openMenuId === post.id ? "relative z-50" : ""}
                   >
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <span
-                          className="font-medium text-gray-900 text-sm cursor-pointer hover:text-indigo-600"
-                          onClick={(e) => { e.stopPropagation(); navigate(`/profile/${post.user.username}`); }}
-                        >
-                          @{post.user.username}
-                        </span>
-                        <span className="text-gray-400 text-xs ml-2">
-                          checked in on{" "}
-                          <span className="text-indigo-600 font-medium">
-                            {post.habit.name}
-                          </span>
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-                          {post.visibility}
-                        </span>
-                        {post.userId === user?.id && (
-                          <KebabMenu
-                            isOpen={openMenuId === post.id}
-                            onToggle={() =>
-                              setOpenMenuId((prev) =>
-                                prev === post.id ? null : post.id
-                              )
-                            }
-                            items={[
-                              {
-                                label: "✏️ Edit",
-                                onClick: () => { setPostToEdit(post); setOpenMenuId(null); },
-                              },
-                              {
-                                label: "🗑️ Delete",
-                                onClick: () => setPostToDelete(post.id),
-                                danger: true,
-                              },
-                            ]}
-                          />
-                        )}
-                      </div>
-                    </div>
-
-                    <p className="text-gray-700 text-sm">{post.content}</p>
-
-                    <p className="text-xs text-gray-400 mt-3">
-                      {new Date(post.createdAt).toLocaleDateString()}
-                    </p>
+                    <PostCard
+                      post={post}
+                      currentUserId={user?.id}
+                      isMenuOpen={openMenuId === post.id}
+                      onToggleMenu={() =>
+                        setOpenMenuId((prev) => (prev === post.id ? null : post.id))
+                      }
+                      onEdit={(p) => { setPostToEdit(p as Post); setOpenMenuId(null); }}
+                      onDelete={(id) => setPostToDelete(id)}
+                    />
                   </div>
                 ))}
               </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import type { Partner, PartnerUser } from "../types/habit";
 import Navbar from "../components/Navbar";
@@ -7,7 +7,6 @@ import DeleteModal from "../components/DeleteModal";
 
 export default function PartnersPage() {
   const { user, token } = useAuth();
-  const navigate = useNavigate();
   const [partners, setPartners] = useState<Partner[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<PartnerUser[]>([]);
