@@ -1,5 +1,9 @@
 import { useState, useEffect, useContext } from "react";
+<<<<<<< HEAD
 import { Link } from "react-router-dom";
+=======
+import { useNavigate } from "react-router-dom";
+>>>>>>> 5c7669b (Clickable usernames in Partners)
 import { AuthContext } from "../context/AuthContext";
 import type { Partner, PartnerUser } from "../types/habit";
 import Navbar from "../components/Navbar";
@@ -7,6 +11,7 @@ import DeleteModal from "../components/DeleteModal";
 
 export default function PartnersPage() {
   const { user, token } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [partners, setPartners] = useState<Partner[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<PartnerUser[]>([]);
@@ -243,9 +248,15 @@ export default function PartnersPage() {
                   key={p.id}
                   className="flex items-center justify-between py-3"
                 >
+<<<<<<< HEAD
                   <Link
                     to={`/profile/${getOtherUser(p).username}`}
                     className="text-sm font-medium text-gray-800 hover:text-indigo-600 hover:underline"
+=======
+                  <span
+                    className="text-sm font-medium text-gray-800 cursor-pointer hover:text-indigo-600"
+                    onClick={() => navigate(`/profile/${getOtherUser(p).username}`)}
+>>>>>>> 5c7669b (Clickable usernames in Partners)
                   >
                     @{getOtherUser(p).username}
                   </Link>
