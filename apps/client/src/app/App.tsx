@@ -9,6 +9,7 @@ import HabitDetailPage from "../pages/HabitDetailPage";
 import FeedPage from "../pages/FeedPage";
 import PartnersPage from "../pages/PartnersPage";
 import ProfilePage from "../pages/ProfilePage";
+import LearnPage from "../pages/LearnPage";
 
 export default function App() {
   return (
@@ -69,6 +70,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/learn"
+          element={
+            <ProtectedRoute>
+              <LearnPage />
             </ProtectedRoute>
           }
         />
