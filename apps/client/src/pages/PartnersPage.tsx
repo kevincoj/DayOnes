@@ -248,15 +248,9 @@ export default function PartnersPage() {
                   key={p.id}
                   className="flex items-center justify-between py-3"
                 >
-<<<<<<< HEAD
-                  <Link
-                    to={`/profile/${getOtherUser(p).username}`}
-                    className="text-sm font-medium text-gray-800 hover:text-indigo-600 hover:underline"
-=======
                   <span
                     className="text-sm font-medium text-gray-800 cursor-pointer hover:text-indigo-600"
                     onClick={() => navigate(`/profile/${getOtherUser(p).username}`)}
->>>>>>> 5c7669b (Clickable usernames in Partners)
                   >
                     @{getOtherUser(p).username}
                   </Link>
