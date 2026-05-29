@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import type { Partner, PartnerUser } from "../types/habit";
@@ -138,9 +138,12 @@ export default function PartnersPage() {
                   key={u.id}
                   className="flex items-center justify-between px-4 py-3 bg-white"
                 >
-                  <span className="text-sm font-medium text-gray-800">
+                  <Link
+                    to={`/profile/${u.username}`}
+                    className="text-sm font-medium text-gray-800 hover:text-indigo-600 hover:underline"
+                  >
                     @{u.username}
-                  </span>
+                  </Link>
                   <button
                     onClick={() => handleInvite(u.username)}
                     className="text-sm bg-indigo-600 text-white px-3 py-1 rounded-lg hover:bg-indigo-700"
