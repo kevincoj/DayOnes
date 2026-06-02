@@ -17,6 +17,7 @@ export const getComments = async (req: Request, res: Response) => {
 
 export const createComment = async (req: Request, res: Response) => {
   const userId = (req as any).user.id;
+  const username = (req as any).user.username;
   const postId = parseInt((req as any).params.postId);
   const { content } = req.body;
 
@@ -26,6 +27,21 @@ export const createComment = async (req: Request, res: Response) => {
       user: { select: { username: true } },
     },
   });
+
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    select: { userId: true },
+  });
+
+  if (post && post.userId !== userId) {
+    await prisma.notification.create({
+      data: {
+        userId: post.userId,
+        type: "comment",
+        message: `${username} commented on your post.`,
+      },
+    });
+  }
 
   res.status(201).json(comment);
 };

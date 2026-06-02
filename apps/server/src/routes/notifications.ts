@@ -9,7 +9,7 @@ import {
 const router = Router();
 
 router.get("/", authenticateToken, getNotifications);
-router.put("/:id", authenticateToken, markAsRead);
 router.put("/mark-all-read", authenticateToken, markAllAsRead);
+router.put("/:id", authenticateToken, markAsRead);
 
 export default router;
