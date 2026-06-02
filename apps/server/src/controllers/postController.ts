@@ -9,19 +9,16 @@ export const getFeed = async (req: Request, res: Response) => {
   const partnerships = await prisma.partner.findMany({
     where: {
       status: "accepted",
-      OR: [
-        { userId: userId },
-        { partnerId: userId },
-      ],
+      OR: [{ userId: userId }, { partnerId: userId }],
     },
   });
 
   // collect just the IDs of the other person
   const partnerIds = partnerships.map((p) =>
-    p.userId === userId ? p.partnerId : p.userId
+    p.userId === userId ? p.partnerId : p.userId,
   );
 
-  // fetch posts 
+  // fetch posts
   const posts = await prisma.post.findMany({
     where: {
       OR: [
@@ -39,11 +36,28 @@ export const getFeed = async (req: Request, res: Response) => {
       habit: {
         select: { name: true },
       },
+      _count: {
+        select: { likes: true, comments: true },
+      },
+      likes: {
+        where: { userId: userId },
+        select: { id: true },
+      },
     },
     orderBy: { createdAt: "desc" },
   });
 
-  res.json(posts);
+  // reshape the posts to include likeCount and likedByMe
+  const shaped = posts.map((post) => ({
+    ...post,
+    likeCount: post._count.likes,
+    commentCount: post._count.comments,
+    likedByMe: post.likes.length > 0,
+    _count: undefined,
+    likes: undefined,
+  }));
+
+  res.json(shaped);
 };
 
 // POST /api/posts — create a new post
@@ -64,7 +78,9 @@ export const createPost = async (req: Request, res: Response) => {
     },
   });
 
-  res.status(201).json(post);
+  res
+    .status(201)
+    .json({ ...post, likeCount: 0, commentCount: 0, likedByMe: false });
 };
 
 // DELETE /api/posts/:id — delete your own post
@@ -72,7 +88,6 @@ export const deletePost = async (req: Request, res: Response) => {
   const userId = (req as any).user.id;
   const postId = parseInt((req as any).params.id);
 
-  // Make sure this post belongs to the logged-in user
   const post = await prisma.post.findUnique({ where: { id: postId } });
 
   if (!post || post.userId !== userId) {
