@@ -51,6 +51,7 @@ export default function PostCard({
   // comment state
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
+  const [commentCount, setCommentCount] = useState(post.commentCount);
   const [commentsLoaded, setCommentsLoaded] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -109,6 +110,7 @@ export default function PostCard({
       );
       const created = await res.json();
       setComments((prev) => [...prev, created]);
+      setCommentCount((prev) => prev + 1);
       setNewComment("");
     } catch {
       console.error("Failed to post comment");
@@ -127,6 +129,7 @@ export default function PostCard({
         },
       );
       setComments((prev) => prev.filter((c) => c.id !== commentId));
+      setCommentCount((prev) => prev - 1);
     } catch {
       console.error("Failed to delete comment");
     }
@@ -231,7 +234,7 @@ export default function PostCard({
           >
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
-          <span>{comments.length}</span>
+          <span>{commentCount}</span>
         </button>
       </div>
 
