@@ -1,34 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { Comment } from "../types/habit";
 import KebabMenu from "./KebabMenu";
-
-interface PostAuthor {
-  username: string;
-  displayName?: string | null;
-  avatarUrl?: string | null;
-}
-
-interface PostData {
-  id: number;
-  userId: number;
-  content: string;
-  visibility: string;
-  createdAt: string;
-  likeCount: number;
-  commentCount: number;
-  likedByMe: boolean;
-  user: PostAuthor;
-  habit: { name: string };
-}
+import type { Post, Comment } from "../types/habit";
 
 interface Props {
-  post: PostData;
+  post: Post;
   token?: string;
   currentUserId?: number;
   isMenuOpen?: boolean;
   onToggleMenu?: () => void;
-  onEdit?: (post: PostData) => void;
+  onEdit?: (post: Post) => void;
   onDelete?: (id: number) => void;
 }
 
