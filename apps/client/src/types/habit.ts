@@ -36,12 +36,14 @@ export interface Post {
   content: string;
   visibility: string;
   createdAt: string;
-  isEdited: boolean;
+  isEdited?: boolean;
   likeCount: number;
   commentCount: number;
   likedByMe: boolean;
   user: {
     username: string;
+    displayName?: string | null;
+    avatarUrl?: string | null;
   };
   habit: {
     name: string;
@@ -88,25 +90,6 @@ export interface UserProfile {
   stats: ProfileStats;
   following: FriendUser[];
   followers: FriendUser[];
-}
-
-export interface ProfilePost {
-  id: number;
-  userId: number;
-  content: string;
-  visibility: string;
-  createdAt: string;
-  likeCount: number;
-  commentCount: number;
-  likedByMe: boolean;
-  user: {
-    username: string;
-    displayName: string | null;
-    avatarUrl: string | null;
-  };
-  habit: {
-    name: string;
-  };
 }
 
 export interface Comment {

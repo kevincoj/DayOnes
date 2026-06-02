@@ -188,7 +188,7 @@ export async function getUserPosts(req: Request, res: Response) {
     include: {
       habit: { select: { name: true } },
       user: { select: { username: true, displayName: true, avatarUrl: true } },
-      _count: { select: { likes: true } },
+      _count: { select: { likes: true, comments: true } },
       likes: {
         where: { userId: requesterId },
         select: { id: true },
@@ -200,6 +200,7 @@ export async function getUserPosts(req: Request, res: Response) {
   const shaped = posts.slice(0, limit).map((post) => ({
     ...post,
     likeCount: post._count.likes,
+    commentCount: post._count.comments,
     likedByMe: post.likes.length > 0,
     _count: undefined,
     likes: undefined,
