@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
-import { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 import type { Post } from "../types/habit";
 import type { Habit } from "../types/habit";
 import Navbar from "../components/Navbar";
 import DeleteModal from "../components/DeleteModal";
-import KebabMenu from "../components/KebabMenu";
+import EditPostModal from "../components/EditPostModal";
+import PostCard from "../components/PostCard";
 
 export default function FeedPage() {
-  const { user, token } = useContext(AuthContext);
+  const { user, token } = useAuth();
   const [postToDelete, setPostToDelete] = useState<number | null>(null);
+  const [postToEdit, setPostToEdit] = useState<Post | null>(null);
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
   const [posts, setPosts] = useState<Post[]>([]);
@@ -105,7 +106,6 @@ export default function FeedPage() {
       <Navbar />
       <div className="min-h-screen bg-gray-50 py-8 px-4">
         <div className="max-w-xl mx-auto">
-
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-2xl font-bold text-gray-900">Feed</h1>
             <button
@@ -118,7 +118,9 @@ export default function FeedPage() {
 
           {showForm && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
-              <p className="text-sm font-medium text-gray-700 mb-3">Share a check-in</p>
+              <p className="text-sm font-medium text-gray-700 mb-3">
+                Share a check-in
+              </p>
 
               <select
                 value={habitId}
@@ -184,53 +186,24 @@ export default function FeedPage() {
                 {posts.map((post) => (
                   <div
                     key={post.id}
-                    className={`bg-white rounded-xl shadow-sm border border-gray-200 p-4 ${openMenuId === post.id ? "relative z-50" : ""}`}
+                    className={openMenuId === post.id ? "relative z-50" : ""}
                   >
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <span className="font-medium text-gray-900 text-sm">
-                          @{post.user.username}
-                        </span>
-                        <span className="text-gray-400 text-xs ml-2">
-                          checked in on{" "}
-                          <span className="text-indigo-600 font-medium">
-                            {post.habit.name}
-                          </span>
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-                          {post.visibility}
-                        </span>
-                        {post.userId === user?.id && (
-                          <KebabMenu
-                            isOpen={openMenuId === post.id}
-                            onToggle={() =>
-                              setOpenMenuId((prev) =>
-                                prev === post.id ? null : post.id
-                              )
-                            }
-                            items={[
-                              {
-                                label: "✏️ Edit",
-                                onClick: () => {},
-                              },
-                              {
-                                label: "🗑️ Delete",
-                                onClick: () => setPostToDelete(post.id),
-                                danger: true,
-                              },
-                            ]}
-                          />
-                        )}
-                      </div>
-                    </div>
-
-                    <p className="text-gray-700 text-sm">{post.content}</p>
-
-                    <p className="text-xs text-gray-400 mt-3">
-                      {new Date(post.createdAt).toLocaleDateString()}
-                    </p>
+                    <PostCard
+                      post={post}
+                      token={token ?? undefined}
+                      currentUserId={user?.id}
+                      isMenuOpen={openMenuId === post.id}
+                      onToggleMenu={() =>
+                        setOpenMenuId((prev) =>
+                          prev === post.id ? null : post.id,
+                        )
+                      }
+                      onEdit={(p) => {
+                        setPostToEdit(p as Post);
+                        setOpenMenuId(null);
+                      }}
+                      onDelete={(id) => setPostToDelete(id)}
+                    />
                   </div>
                 ))}
               </div>
@@ -238,6 +211,29 @@ export default function FeedPage() {
           )}
         </div>
       </div>
+
+      {postToEdit && (
+        <EditPostModal
+          postId={postToEdit.id}
+          initialContent={postToEdit.content}
+          initialVisibility={postToEdit.visibility}
+          onClose={() => setPostToEdit(null)}
+          onSave={(updatedContent, updatedVisibility) => {
+            setPosts((prev) =>
+              prev.map((p) =>
+                p.id === postToEdit.id
+                  ? {
+                      ...p,
+                      content: updatedContent,
+                      visibility: updatedVisibility,
+                    }
+                  : p,
+              ),
+            );
+            setPostToEdit(null);
+          }}
+        />
+      )}
 
       {postToDelete && (
         <DeleteModal

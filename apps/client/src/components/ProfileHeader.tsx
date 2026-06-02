@@ -38,7 +38,9 @@ export default function ProfileHeader({
                 className="w-20 h-20 rounded-full object-cover"
               />
             ) : (
-              <span className="text-2xl font-bold text-indigo-600">{initials}</span>
+              <span className="text-2xl font-bold text-indigo-600">
+                {initials}
+              </span>
             )}
           </div>
 
@@ -64,9 +66,9 @@ export default function ProfileHeader({
             <p className="text-sm text-gray-700 mt-2 leading-snug">
               {profile.bio ? (
                 profile.bio
-              ) : (
+              ) : isOwnProfile ? (
                 <span className="text-gray-400 italic">Add a bio…</span>
-              )}
+              ) : null}
             </p>
           </div>
         </div>

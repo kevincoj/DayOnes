@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import type { Habit } from "../types/habit";
 import HabitCard from "../components/HabitCard";
 import DeleteModal from "../components/DeleteModal";
-import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 
 export default function HomePage() {
@@ -12,7 +11,6 @@ export default function HomePage() {
   const [habitToDelete, setHabitToDelete] = useState<Habit | null>(null);
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const navigate = useNavigate();
-  const { logout } = useAuth();
 
   function handleCheckIn(id: number) {
     setHabits((prev) =>

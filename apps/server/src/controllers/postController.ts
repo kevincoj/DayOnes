@@ -5,23 +5,20 @@ import { prisma } from "../lib/prisma";
 export const getFeed = async (req: Request, res: Response) => {
   const userId = (req as any).user.id;
 
-  // Step 1: find all accepted partner IDs for this user
+  // find all accepted partner IDs for this user
   const partnerships = await prisma.partner.findMany({
     where: {
       status: "accepted",
-      OR: [
-        { userId: userId },
-        { partnerId: userId },
-      ],
+      OR: [{ userId: userId }, { partnerId: userId }],
     },
   });
 
-  // Step 2: collect just the IDs of the other person in each partnership
+  // collect just the IDs of the other person
   const partnerIds = partnerships.map((p) =>
-    p.userId === userId ? p.partnerId : p.userId
+    p.userId === userId ? p.partnerId : p.userId,
   );
 
-  // Step 3: fetch posts — yours (any visibility) OR partners' non-private posts
+  // fetch posts
   const posts = await prisma.post.findMany({
     where: {
       OR: [
@@ -39,11 +36,28 @@ export const getFeed = async (req: Request, res: Response) => {
       habit: {
         select: { name: true },
       },
+      _count: {
+        select: { likes: true, comments: true },
+      },
+      likes: {
+        where: { userId: userId },
+        select: { id: true },
+      },
     },
     orderBy: { createdAt: "desc" },
   });
 
-  res.json(posts);
+  // reshape the posts to include likeCount and likedByMe
+  const shaped = posts.map((post) => ({
+    ...post,
+    likeCount: post._count.likes,
+    commentCount: post._count.comments,
+    likedByMe: post.likes.length > 0,
+    _count: undefined,
+    likes: undefined,
+  }));
+
+  res.json(shaped);
 };
 
 // POST /api/posts — create a new post
@@ -64,7 +78,9 @@ export const createPost = async (req: Request, res: Response) => {
     },
   });
 
-  res.status(201).json(post);
+  res
+    .status(201)
+    .json({ ...post, likeCount: 0, commentCount: 0, likedByMe: false });
 };
 
 // DELETE /api/posts/:id — delete your own post
@@ -72,7 +88,6 @@ export const deletePost = async (req: Request, res: Response) => {
   const userId = (req as any).user.id;
   const postId = parseInt((req as any).params.id);
 
-  // Make sure this post belongs to the logged-in user
   const post = await prisma.post.findUnique({ where: { id: postId } });
 
   if (!post || post.userId !== userId) {
@@ -82,4 +97,28 @@ export const deletePost = async (req: Request, res: Response) => {
 
   await prisma.post.delete({ where: { id: postId } });
   res.json({ message: "Post deleted" });
+};
+
+// PUT /api/posts/:id — edit your own post
+export const updatePost = async (req: Request, res: Response) => {
+  const userId = (req as any).user.id;
+  const postId = parseInt((req as any).params.id);
+  const { content, visibility } = req.body;
+
+  const post = await prisma.post.findUnique({ where: { id: postId } });
+  if (!post || post.userId !== userId) {
+    res.status(403).json({ error: "Not authorized" });
+    return;
+  }
+
+  const updated = await prisma.post.update({
+    where: { id: postId },
+    data: { content, visibility },
+    include: {
+      user: { select: { username: true } },
+      habit: { select: { name: true } },
+    },
+  });
+
+  res.json(updated);
 };

@@ -10,17 +10,26 @@ interface Props {
   onToggleMenu: () => void;
 }
 
-export default function HabitCard({ habit, onDelete, onCheckIn, isMenuOpen, onToggleMenu }: Props) {
+export default function HabitCard({
+  habit,
+  onDelete,
+  onCheckIn,
+  isMenuOpen,
+  onToggleMenu,
+}: Props) {
   const [checking, setChecking] = useState(false);
   const navigate = useNavigate();
 
   async function handleCheckIn() {
     setChecking(true);
     const token = localStorage.getItem("token");
-    const res = await fetch(`http://localhost:3001/api/habits/${habit.id}/log`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const res = await fetch(
+      `http://localhost:3001/api/habits/${habit.id}/log`,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
     if (res.ok) {
       onCheckIn(habit.id);
     }
@@ -29,8 +38,8 @@ export default function HabitCard({ habit, onDelete, onCheckIn, isMenuOpen, onTo
 
   return (
     <li
-        onClick={() => navigate(`/habits/${habit.id}`)}
-        className={`border rounded-lg p-4 shadow-sm relative cursor-pointer transition-all duration-150 hover:shadow-md hover:scale-[1.01] hover:bg-gray-50 ${isMenuOpen ? "z-50" : ""}`}
+      onClick={() => navigate(`/habits/${habit.id}`)}
+      className={`border rounded-lg p-4 shadow-sm relative cursor-pointer transition-all duration-150 hover:shadow-md hover:scale-[1.01] hover:bg-gray-50 ${isMenuOpen ? "z-50" : ""}`}
     >
       <div className="flex justify-between items-start">
         <div className="flex-1">
@@ -38,15 +47,22 @@ export default function HabitCard({ habit, onDelete, onCheckIn, isMenuOpen, onTo
           {habit.description && (
             <p className="text-gray-600 mt-1">{habit.description}</p>
           )}
-          <div className="flex items-center gap-4 mt-2">
+          <div className="mt-2">
             <p className="text-sm text-gray-400">
               {habit.logsThisWeek} / {habit.frequency} days this week
             </p>
-            {habit.currentStreak > 0 && (
-              <p className="text-sm text-orange-400">
-                🔥 {habit.currentStreak} day streak
-              </p>
-            )}
+            <div className="mt-1 h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all duration-300"
+                style={{
+                  width: `${Math.min((habit.logsThisWeek / parseInt(habit.frequency)) * 100, 100)}%`,
+                  backgroundColor:
+                    habit.logsThisWeek >= parseInt(habit.frequency)
+                      ? "#22c55e"
+                      : "#6366f1",
+                }}
+              />
+            </div>
           </div>
         </div>
 
@@ -54,6 +70,12 @@ export default function HabitCard({ habit, onDelete, onCheckIn, isMenuOpen, onTo
           className="flex items-center gap-2"
           onClick={(e) => e.stopPropagation()}
         >
+          {/* Streak — now lives on the right so it doesn't shift the progress bar */}
+          {habit.currentStreak > 0 && (
+            <p className="text-sm text-orange-400">
+              🔥 {habit.currentStreak} day streak
+            </p>
+          )}
           {/* Check-in button */}
           <button
             onClick={handleCheckIn}
