@@ -38,6 +38,7 @@ export interface Post {
   createdAt: string;
   isEdited: boolean;
   likeCount: number;
+  commentCount: number;
   likedByMe: boolean;
   user: {
     username: string;
@@ -96,6 +97,7 @@ export interface ProfilePost {
   visibility: string;
   createdAt: string;
   likeCount: number;
+  commentCount: number;
   likedByMe: boolean;
   user: {
     username: string;

@@ -37,7 +37,7 @@ export const getFeed = async (req: Request, res: Response) => {
         select: { name: true },
       },
       _count: {
-        select: { likes: true },
+        select: { likes: true, comments: true },
       },
       likes: {
         where: { userId: userId },
@@ -51,6 +51,7 @@ export const getFeed = async (req: Request, res: Response) => {
   const shaped = posts.map((post) => ({
     ...post,
     likeCount: post._count.likes,
+    commentCount: post._count.comments,
     likedByMe: post.likes.length > 0,
     _count: undefined,
     likes: undefined,
@@ -77,7 +78,9 @@ export const createPost = async (req: Request, res: Response) => {
     },
   });
 
-  res.status(201).json({ ...post, likeCount: 0, likedByMe: false });
+  res
+    .status(201)
+    .json({ ...post, likeCount: 0, commentCount: 0, likedByMe: false });
 };
 
 // DELETE /api/posts/:id — delete your own post
