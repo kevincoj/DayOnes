@@ -40,10 +40,9 @@ export default function ProfilePage() {
       setIsLoading(true);
       loadedTabs.current = new Set();
       try {
-        const res = await fetch(
-          `http://localhost:3001/api/users/${username}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        const res = await fetch(`http://localhost:3001/api/users/${username}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         if (!res.ok) return;
         const data = await res.json();
         setProfile(data);
@@ -79,7 +78,7 @@ export default function ProfilePage() {
   async function fetchUserPosts(page: number) {
     const res = await fetch(
       `http://localhost:3001/api/users/${username}/posts?page=${page}`,
-      { headers: { Authorization: `Bearer ${token}` } }
+      { headers: { Authorization: `Bearer ${token}` } },
     );
     const data = await res.json();
     const incoming = data.posts ?? [];
@@ -95,7 +94,7 @@ export default function ProfilePage() {
   async function fetchFriendsPosts(page: number) {
     const res = await fetch(
       `http://localhost:3001/api/users/me/friends-feed?page=${page}`,
-      { headers: { Authorization: `Bearer ${token}` } }
+      { headers: { Authorization: `Bearer ${token}` } },
     );
     const data = await res.json();
     if (page === 1) {
@@ -145,7 +144,9 @@ export default function ProfilePage() {
       {isPrivateAndNotOwn ? (
         <div className="max-w-2xl mx-auto px-4 mt-16 text-center">
           <p className="text-5xl mb-4">🔒</p>
-          <p className="text-base font-semibold text-gray-700">This profile is private.</p>
+          <p className="text-base font-semibold text-gray-700">
+            This profile is private.
+          </p>
           <p className="text-sm text-gray-400 mt-1">
             Connect with this user to see their posts.
           </p>
@@ -171,14 +172,15 @@ export default function ProfilePage() {
           </div>
 
           <div className="max-w-2xl mx-auto px-4 py-5 flex flex-col gap-4">
-
             {/* My Posts tab */}
             {activeTab === "myPosts" && (
               <>
                 {posts.length === 0 ? (
                   <div className="text-center py-16">
                     <p className="text-5xl mb-4">📋</p>
-                    <p className="text-base font-semibold text-gray-600">No posts yet.</p>
+                    <p className="text-base font-semibold text-gray-600">
+                      No posts yet.
+                    </p>
                     <p className="text-sm text-gray-400 mt-1">
                       Log a habit to share your first check-in!
                     </p>
@@ -194,16 +196,24 @@ export default function ProfilePage() {
                     {posts.map((post) => (
                       <div
                         key={post.id}
-                        className={openMenuId === post.id ? "relative z-50" : ""}
+                        className={
+                          openMenuId === post.id ? "relative z-50" : ""
+                        }
                       >
                         <PostCard
                           post={post}
+                          token={token ?? undefined}
                           currentUserId={authUser?.id}
                           isMenuOpen={openMenuId === post.id}
                           onToggleMenu={() =>
-                            setOpenMenuId((prev) => (prev === post.id ? null : post.id))
+                            setOpenMenuId((prev) =>
+                              prev === post.id ? null : post.id,
+                            )
                           }
-                          onEdit={(p) => { setPostToEdit(p as ProfilePost); setOpenMenuId(null); }}
+                          onEdit={(p) => {
+                            setPostToEdit(p as ProfilePost);
+                            setOpenMenuId(null);
+                          }}
                           onDelete={(id) => setPostToDelete(id)}
                         />
                       </div>
@@ -231,7 +241,10 @@ export default function ProfilePage() {
                       No friend activity yet.
                     </p>
                     <p className="text-sm text-gray-400 mt-1">
-                      <a href="/partners" className="text-indigo-600 hover:underline">
+                      <a
+                        href="/partners"
+                        className="text-indigo-600 hover:underline"
+                      >
                         Find partners
                       </a>{" "}
                       to see their posts here.
@@ -291,9 +304,13 @@ export default function ProfilePage() {
             setPosts((prev) =>
               prev.map((p) =>
                 p.id === postToEdit.id
-                  ? { ...p, content: updatedContent, visibility: updatedVisibility }
-                  : p
-              )
+                  ? {
+                      ...p,
+                      content: updatedContent,
+                      visibility: updatedVisibility,
+                    }
+                  : p,
+              ),
             );
             setPostToEdit(null);
           }}

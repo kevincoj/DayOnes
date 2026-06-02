@@ -106,7 +106,6 @@ export default function FeedPage() {
       <Navbar />
       <div className="min-h-screen bg-gray-50 py-8 px-4">
         <div className="max-w-xl mx-auto">
-
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-2xl font-bold text-gray-900">Feed</h1>
             <button
@@ -119,7 +118,9 @@ export default function FeedPage() {
 
           {showForm && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
-              <p className="text-sm font-medium text-gray-700 mb-3">Share a check-in</p>
+              <p className="text-sm font-medium text-gray-700 mb-3">
+                Share a check-in
+              </p>
 
               <select
                 value={habitId}
@@ -189,12 +190,18 @@ export default function FeedPage() {
                   >
                     <PostCard
                       post={post}
+                      token={token ?? undefined}
                       currentUserId={user?.id}
                       isMenuOpen={openMenuId === post.id}
                       onToggleMenu={() =>
-                        setOpenMenuId((prev) => (prev === post.id ? null : post.id))
+                        setOpenMenuId((prev) =>
+                          prev === post.id ? null : post.id,
+                        )
                       }
-                      onEdit={(p) => { setPostToEdit(p as Post); setOpenMenuId(null); }}
+                      onEdit={(p) => {
+                        setPostToEdit(p as Post);
+                        setOpenMenuId(null);
+                      }}
                       onDelete={(id) => setPostToDelete(id)}
                     />
                   </div>
@@ -215,9 +222,13 @@ export default function FeedPage() {
             setPosts((prev) =>
               prev.map((p) =>
                 p.id === postToEdit.id
-                  ? { ...p, content: updatedContent, visibility: updatedVisibility }
-                  : p
-              )
+                  ? {
+                      ...p,
+                      content: updatedContent,
+                      visibility: updatedVisibility,
+                    }
+                  : p,
+              ),
             );
             setPostToEdit(null);
           }}

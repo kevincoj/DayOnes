@@ -1,14 +1,9 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
 }
 
 model User {
@@ -27,6 +22,8 @@ model User {
   partnersSent     Partner[]      @relation("UserPartners")
   partnersReceived Partner[]      @relation("PartnerUsers")
   notifications    Notification[]
+  likes            Like[]
+  comments         Comment[]
 }
 
 model Habit {
@@ -61,14 +58,17 @@ model HabitLog {
 }
 
 model Post {
-  id         Int      @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   userId     Int
-  user       User     @relation(fields: [userId], references: [id])
+  user       User      @relation(fields: [userId], references: [id])
   habitId    Int
-  habit      Habit   @relation(fields: [habitId], references: [id])
+  habit      Habit     @relation(fields: [habitId], references: [id])
   content    String
-  visibility String   @default("private")
-  createdAt  DateTime @default(now())
+  visibility String    @default("private")
+  isEdited   Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  likes      Like[]
+  comments   Comment[]
 }
 
 model Partner {
@@ -82,12 +82,33 @@ model Partner {
 }
 
 model Notification {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   userId      Int
-  user        User     @relation(fields: [userId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
   type        String
   message     String
-  read        Boolean  @default(false)
+  read        Boolean   @default(false)
   scheduledAt DateTime?
-  createdAt   DateTime @default(now())
+  createdAt   DateTime  @default(now())
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  postId    Int
+  post      Post     @relation(fields: [postId], references: [id])
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  postId    Int
+  post      Post     @relation(fields: [postId], references: [id])
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  content   String
+  createdAt DateTime @default(now())
 }

@@ -1,33 +1,33 @@
 // --- Type for all the form data ---
 export interface HabitFormData {
-  name: string
-  description: string
-  frequency: string
-  durationWeeks: string
-  triggerCue: string
-  microVersion: string
-  obstaclePlan: string
-  socialMode: string
-  reward: string
+  name: string;
+  description: string;
+  frequency: string;
+  durationWeeks: string;
+  triggerCue: string;
+  microVersion: string;
+  obstaclePlan: string;
+  socialMode: string;
+  reward: string;
 }
 
 export interface Habit {
-  id: number
-  name: string
-  description: string | null
-  frequency: string
-  durationWeeks: number | null
-  createdAt: string
-  currentStreak: number
-  totalCompleted: number
-  loggedToday: boolean
-  logDates: string[]
-  logsThisWeek: number
-  triggerCue: string | null
-  socialMode: string
-  isActive: boolean
-  microVersion: string | null
-  reward: string | null
+  id: number;
+  name: string;
+  description: string | null;
+  frequency: string;
+  durationWeeks: number | null;
+  createdAt: string;
+  currentStreak: number;
+  totalCompleted: number;
+  loggedToday: boolean;
+  logDates: string[];
+  logsThisWeek: number;
+  triggerCue: string | null;
+  socialMode: string;
+  isActive: boolean;
+  microVersion: string | null;
+  reward: string | null;
 }
 
 export interface Post {
@@ -36,6 +36,9 @@ export interface Post {
   content: string;
   visibility: string;
   createdAt: string;
+  isEdited: boolean;
+  likeCount: number;
+  likedByMe: boolean;
   user: {
     username: string;
   };
@@ -88,10 +91,12 @@ export interface UserProfile {
 
 export interface ProfilePost {
   id: number;
-  userId: number; 
+  userId: number;
   content: string;
   visibility: string;
   createdAt: string;
+  likeCount: number;
+  likedByMe: boolean;
   user: {
     username: string;
     displayName: string | null;
@@ -100,4 +105,21 @@ export interface ProfilePost {
   habit: {
     name: string;
   };
+}
+
+export interface Comment {
+  id: number;
+  postId: number;
+  userId: number;
+  content: string;
+  createdAt: string;
+  user: {
+    username: string;
+  };
+}
+
+export interface Like {
+  id: number;
+  postId: number;
+  userId: number;
 }

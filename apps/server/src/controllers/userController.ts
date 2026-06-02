@@ -31,7 +31,12 @@ export async function getProfile(req: Request, res: Response) {
         where: { status: "accepted" },
         select: {
           partner: {
-            select: { id: true, username: true, displayName: true, avatarUrl: true },
+            select: {
+              id: true,
+              username: true,
+              displayName: true,
+              avatarUrl: true,
+            },
           },
         },
       },
@@ -39,7 +44,12 @@ export async function getProfile(req: Request, res: Response) {
         where: { status: "accepted" },
         select: {
           user: {
-            select: { id: true, username: true, displayName: true, avatarUrl: true },
+            select: {
+              id: true,
+              username: true,
+              displayName: true,
+              avatarUrl: true,
+            },
           },
         },
       },
@@ -57,7 +67,7 @@ export async function getProfile(req: Request, res: Response) {
   let bestStreak = 0;
   for (const habit of user.habits) {
     const logs = [...habit.habitLogs].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
     );
     let streak = 0;
     for (let i = 0; i < logs.length; i++) {
@@ -80,7 +90,7 @@ export async function getProfile(req: Request, res: Response) {
   let completedThisMonth = 0;
   for (const habit of user.habits) {
     completedThisMonth += habit.habitLogs.filter(
-      (l) => new Date(l.date) >= monthStart
+      (l) => new Date(l.date) >= monthStart,
     ).length;
   }
   const completionRate =
@@ -135,7 +145,6 @@ export async function updateProfile(req: Request, res: Response) {
 
   res.json(updated);
 }
-
 // GET /api/users/:username/posts
 export async function getUserPosts(req: Request, res: Response) {
   const username = req.params.username as string;
@@ -179,11 +188,24 @@ export async function getUserPosts(req: Request, res: Response) {
     include: {
       habit: { select: { name: true } },
       user: { select: { username: true, displayName: true, avatarUrl: true } },
+      _count: { select: { likes: true } },
+      likes: {
+        where: { userId: requesterId },
+        select: { id: true },
+      },
     },
   });
 
   const hasMore = posts.length > limit;
-  res.json({ posts: posts.slice(0, limit), hasMore, isPrivate: false });
+  const shaped = posts.slice(0, limit).map((post) => ({
+    ...post,
+    likeCount: post._count.likes,
+    likedByMe: post.likes.length > 0,
+    _count: undefined,
+    likes: undefined,
+  }));
+
+  res.json({ posts: shaped, hasMore, isPrivate: false });
 }
 
 // GET /api/users/me/friends-feed
@@ -203,7 +225,7 @@ export async function getFriendsFeed(req: Request, res: Response) {
   });
 
   const friendIds = partnerships.map((p) =>
-    p.userId === userId ? p.partnerId : p.userId
+    p.userId === userId ? p.partnerId : p.userId,
   );
 
   if (friendIds.length === 0) {
@@ -222,9 +244,22 @@ export async function getFriendsFeed(req: Request, res: Response) {
     include: {
       habit: { select: { name: true } },
       user: { select: { username: true, displayName: true, avatarUrl: true } },
+      _count: { select: { likes: true } },
+      likes: {
+        where: { userId },
+        select: { id: true },
+      },
     },
   });
 
   const hasMore = posts.length > limit;
-  res.json({ posts: posts.slice(0, limit), hasMore });
+  const shaped = posts.slice(0, limit).map((post) => ({
+    ...post,
+    likeCount: post._count.likes,
+    likedByMe: post.likes.length > 0,
+    _count: undefined,
+    likes: undefined,
+  }));
+
+  res.json({ posts: shaped, hasMore });
 }
