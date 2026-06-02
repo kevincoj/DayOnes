@@ -9,6 +9,7 @@ import habitRoutes from './src/routes/habits';
 import postRoutes from './src/routes/posts';
 import partnerRoutes from './src/routes/partners';
 import userRoutes from './src/routes/users';
+import notificationRoutes from './src/routes/notifications';
 
 
 
@@ -28,6 +29,7 @@ app.use('/api/habits', habitRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/partners', partnerRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
