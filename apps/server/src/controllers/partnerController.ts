@@ -44,6 +44,14 @@ export const invitePartner = async (req: Request, res: Response) => {
     },
   });
 
+  await prisma.notification.create({
+  data: {
+    userId: targetUser.id,
+    type: "partner_invite",
+    message: `${(req as any).user.username} sent you a partner invite.`,
+  },
+});
+
   res.status(201).json(partner);
 };
 
@@ -69,6 +77,14 @@ export const acceptInvite = async (req: Request, res: Response) => {
     where: { id: partnerId },
     data: { status: "accepted" },
   });
+
+  await prisma.notification.create({
+  data: {
+    userId: invite.userId,
+    type: "partner_accepted",
+    message: `${(req as any).user.username} accepted your partner invite.`,
+  },
+});
 
   res.json(updated);
 };
