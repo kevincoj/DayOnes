@@ -1,6 +1,7 @@
 import type { Habit } from "../types/habit";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import PactIcon from "./PactIcon";
 
 interface Props {
   habit: Habit;
@@ -43,7 +44,15 @@ export default function HabitCard({
     >
       <div className="flex justify-between items-start">
         <div className="flex-1">
-          <h2 className="text-xl font-semibold">{habit.name}</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-semibold">{habit.name}</h2>
+            {habit.socialMode === "pact" && (
+              <span className="flex items-center gap-1 text-xs font-semibold px-2 py-0.5 bg-purple-100 text-purple-600 rounded-full">
+                <PactIcon />
+                Pact
+              </span>
+            )}
+          </div>
           {habit.description && (
             <p className="text-gray-600 mt-1">{habit.description}</p>
           )}
