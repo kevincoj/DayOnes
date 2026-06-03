@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import type { Habit } from "../types/habit";
+import {useState, useEffect} from "react";
+import {useParams, useNavigate} from "react-router-dom";
+import {useAuth} from "../context/AuthContext";
+import type {PartnerUser} from "../types/habit";
+import type {Habit} from "../types/habit";
 import Navbar from "../components/Navbar";
 
 const MONTHS = [
@@ -25,6 +27,11 @@ interface CalendarProps {
   onRemoveDate: (date: string) => void;
 }
 
+interface ReadOnlyCalendarProps {
+  logDates: string[];
+  createdAt: string;
+}
+
 function HabitCalendar({
   logDates,
   createdAt,
@@ -32,16 +39,13 @@ function HabitCalendar({
   onRemoveDate,
 }: CalendarProps) {
   const today = new Date();
-  const todayStr = today.toLocaleDateString("en-CA"); // gives YYYY-MM-DD in local time
+  const todayStr = today.toLocaleDateString("en-CA");
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
   const logSet = new Set(logDates);
-
-  // Use local date for created comparison to avoid timezone shifting
   const createdStr = new Date(createdAt).toLocaleDateString("en-CA");
-
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
   const firstDay = new Date(viewYear, viewMonth, 1).getDay();
   const isNextDisabled =
@@ -67,7 +71,7 @@ function HabitCalendar({
   function handleDayClick(
     dateStr: string,
     isFuture: boolean,
-    isBeforeStart: boolean,
+    isBeforeStart: boolean
   ) {
     if (isFuture || isBeforeStart) return;
     setSelectedDay((prev) => (prev === dateStr ? null : dateStr));
@@ -77,7 +81,6 @@ function HabitCalendar({
 
   return (
     <div>
-      {/* Month navigation */}
       <div className="flex items-center justify-between mb-3">
         <button
           onClick={prevMonth}
@@ -97,21 +100,22 @@ function HabitCalendar({
         </button>
       </div>
 
-      {/* Day headers */}
       <div className="grid grid-cols-7 text-center text-xs text-gray-400 mb-1">
         {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
           <div key={d}>{d}</div>
         ))}
       </div>
 
-      {/* Day cells */}
       <div className="grid grid-cols-7 gap-1">
-        {Array.from({ length: firstDay }).map((_, i) => (
+        {Array.from({length: firstDay}).map((_, i) => (
           <div key={`e-${i}`} />
         ))}
-        {Array.from({ length: daysInMonth }).map((_, i) => {
+        {Array.from({length: daysInMonth}).map((_, i) => {
           const day = i + 1;
-          const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+          const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(
+            2,
+            "0"
+          )}-${String(day).padStart(2, "0")}`;
           const isFuture = dateStr > todayStr;
           const isBeforeStart = dateStr < createdStr;
           const isLoggedDay = logSet.has(dateStr);
@@ -148,7 +152,6 @@ function HabitCalendar({
         })}
       </div>
 
-      {/* Selected day action */}
       {selectedDay && (
         <div className="mt-4 p-3 bg-gray-50 rounded-lg flex items-center justify-between">
           <p className="text-sm text-gray-600">
@@ -185,18 +188,119 @@ function HabitCalendar({
   );
 }
 
+function PartnerCalendar({logDates, createdAt}: ReadOnlyCalendarProps) {
+  const today = new Date();
+  const [viewYear, setViewYear] = useState(today.getFullYear());
+  const [viewMonth, setViewMonth] = useState(today.getMonth());
+
+  const logSet = new Set(logDates);
+  const todayStr = today.toLocaleDateString("en-CA");
+  const createdStr = new Date(createdAt).toLocaleDateString("en-CA");
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+  const isNextDisabled =
+    viewYear === today.getFullYear() && viewMonth === today.getMonth();
+
+  function prevMonth() {
+    if (viewMonth === 0) {
+      setViewYear((y) => y - 1);
+      setViewMonth(11);
+    } else setViewMonth((m) => m - 1);
+  }
+
+  function nextMonth() {
+    if (isNextDisabled) return;
+    if (viewMonth === 11) {
+      setViewYear((y) => y + 1);
+      setViewMonth(0);
+    } else setViewMonth((m) => m + 1);
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <button
+          onClick={prevMonth}
+          className="p-1 px-2 hover:bg-gray-100 rounded text-gray-500"
+        >
+          ←
+        </button>
+        <span className="font-medium text-gray-700">
+          {MONTHS[viewMonth]} {viewYear}
+        </span>
+        <button
+          onClick={nextMonth}
+          disabled={isNextDisabled}
+          className="p-1 px-2 hover:bg-gray-100 rounded text-gray-500 disabled:opacity-30"
+        >
+          →
+        </button>
+      </div>
+
+      <div className="grid grid-cols-7 text-center text-xs text-gray-400 mb-1">
+        {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
+          <div key={d}>{d}</div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-7 gap-1">
+        {Array.from({length: firstDay}).map((_, i) => (
+          <div key={`e-${i}`} />
+        ))}
+        {Array.from({length: daysInMonth}).map((_, i) => {
+          const day = i + 1;
+          const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(
+            2,
+            "0"
+          )}-${String(day).padStart(2, "0")}`;
+          const isFuture = dateStr > todayStr;
+          const isBeforeStart = dateStr < createdStr;
+          const isLoggedDay = logSet.has(dateStr);
+          const isToday = dateStr === todayStr;
+
+          return (
+            <div
+              key={day}
+              className={[
+                "aspect-square rounded-md text-xs flex items-center justify-center",
+                isLoggedDay ? "bg-purple-400 text-white font-medium" : "",
+                isToday && !isLoggedDay
+                  ? "ring-2 ring-blue-400 text-gray-700"
+                  : "",
+                isFuture || isBeforeStart ? "text-gray-200" : "text-gray-700",
+              ].join(" ")}
+            >
+              {day}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function HabitDetailPage() {
-  const { id } = useParams();
+  const {id} = useParams();
   const navigate = useNavigate();
+  const {user, token: authToken} = useAuth();
   const [habit, setHabit] = useState<Habit | null>(null);
   const [loading, setLoading] = useState(true);
   const [checking, setChecking] = useState(false);
+
+  const [showPactInvite, setShowPactInvite] = useState(false);
+  const [pactSearch, setPactSearch] = useState("");
+  const [pactResults, setPactResults] = useState<PartnerUser[]>([]);
+  const [isPactSearching, setIsPactSearching] = useState(false);
+  const [pactMessage, setPactMessage] = useState("");
+
+  const [partnerLogs, setPartnerLogs] = useState<string[]>([]);
+  const [partnerUsername, setPartnerUsername] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchHabit() {
       const token = localStorage.getItem("token");
       const res = await fetch(`http://localhost:3001/api/habits/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {Authorization: `Bearer ${token}`},
       });
       if (!res.ok) {
         navigate("/home");
@@ -208,6 +312,22 @@ export default function HabitDetailPage() {
     }
     fetchHabit();
   }, [id]);
+
+  useEffect(() => {
+    if (!habit || habit.socialMode !== "pact") return;
+
+    async function fetchPartnerLogs() {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://localhost:3001/api/pacts/habit/${id}`, {
+        headers: {Authorization: `Bearer ${token}`},
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      setPartnerLogs(data.partnerLogs ?? []);
+      setPartnerUsername(data.partnerUsername ?? null);
+    }
+    fetchPartnerLogs();
+  }, [habit]);
 
   async function handleCheckIn(dateStr?: string) {
     if (!habit) return;
@@ -221,8 +341,8 @@ export default function HabitDetailPage() {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(dateStr ? { date: dateStr } : {}),
-      },
+        body: JSON.stringify(dateStr ? {date: dateStr} : {}),
+      }
     );
     if (res.ok) {
       const isToday =
@@ -241,7 +361,7 @@ export default function HabitDetailPage() {
                 ? prev.currentStreak + 1
                 : prev.currentStreak,
             }
-          : prev,
+          : prev
       );
     }
     setChecking(false);
@@ -257,8 +377,8 @@ export default function HabitDetailPage() {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ date: dateStr }),
-      },
+        body: JSON.stringify({date: dateStr}),
+      }
     );
     if (res.ok) {
       const isToday = dateStr === new Date().toLocaleDateString("en-CA");
@@ -273,8 +393,63 @@ export default function HabitDetailPage() {
                 ? Math.max(0, prev.currentStreak - 1)
                 : prev.currentStreak,
             }
-          : prev,
+          : prev
       );
+    }
+  }
+
+  useEffect(() => {
+    if (pactSearch.trim() === "") {
+      setPactResults([]);
+      return;
+    }
+    const delay = setTimeout(async () => {
+      setIsPactSearching(true);
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(
+          `http://localhost:3001/api/users/search?q=${pactSearch}`,
+          {
+            headers: {Authorization: `Bearer ${token}`},
+          }
+        );
+        const data = await res.json();
+        setPactResults(data);
+      } finally {
+        setIsPactSearching(false);
+      }
+    }, 400);
+    return () => clearTimeout(delay);
+  }, [pactSearch]);
+
+  async function handleSendPactInvite(partnerUsername: string) {
+    const token = localStorage.getItem("token");
+    const res = await fetch("http://localhost:3001/api/pacts/invite", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({habitId: habit!.id, partnerUsername}),
+    });
+
+    if (res.ok) {
+      await fetch(`http://localhost:3001/api/habits/${habit!.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({...habit, socialMode: "pact"}),
+      });
+      setHabit((prev) => (prev ? {...prev, socialMode: "pact"} : prev));
+      setPactMessage(`Pact invite sent to @${partnerUsername}!`);
+      setPactSearch("");
+      setPactResults([]);
+      setShowPactInvite(false);
+    } else {
+      const data = await res.json();
+      setPactMessage(data.error ?? "Something went wrong.");
     }
   }
 
@@ -286,130 +461,228 @@ export default function HabitDetailPage() {
     day: "numeric",
   });
 
+  const isPact = habit.socialMode === "pact";
+
   return (
     <div>
       <Navbar />
-    <div className="max-w-2xl mx-auto p-8 space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div>
+      <div className="max-w-4xl mx-auto p-8 space-y-6">
+        {/* Header */}
+        <div className="flex items-start justify-between">
+          <div>
+            <button
+              onClick={() => navigate("/home")}
+              className="text-sm text-gray-400 hover:text-gray-600 mb-2 block"
+            >
+              ← Back
+            </button>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold text-gray-800">{habit.name}</h1>
+              {isPact && (
+                <span className="flex items-center gap-1 text-xs font-semibold px-2 py-1 bg-purple-100 text-purple-600 rounded-full">
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M17 11H7a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2z" />
+                    <path d="M12 11V7" />
+                    <path d="M8 7a4 4 0 0 1 8 0" />
+                    <path d="M9 15h.01M15 15h.01" />
+                  </svg>
+                  Pact
+                </span>
+              )}
+              {!isPact && habit.userId === user?.id && (
+                <button
+                  onClick={() => setShowPactInvite((prev) => !prev)}
+                  className="text-xs font-semibold px-3 py-1 border border-purple-300 text-purple-600 rounded-full hover:bg-purple-50 transition-colors"
+                >
+                  + Start a Pact
+                </button>
+              )}
+            </div>
+            {habit.description && (
+              <p className="text-gray-500 mt-1">{habit.description}</p>
+            )}
+          </div>
           <button
-            onClick={() => navigate("/home")}
-            className="text-sm text-gray-400 hover:text-gray-600 mb-2 block"
+            onClick={() => handleCheckIn()}
+            disabled={habit.loggedToday || checking}
+            className={`text-sm px-4 py-2 rounded-lg transition-colors font-medium ${
+              habit.loggedToday
+                ? "bg-green-100 text-green-700 cursor-default"
+                : "bg-blue-500 hover:bg-blue-600 text-white"
+            }`}
           >
-            ← Back
+            {habit.loggedToday ? "Done today ✓" : checking ? "..." : "Check in"}
           </button>
-          <h1 className="text-3xl font-bold text-gray-800">{habit.name}</h1>
-          {habit.description && (
-            <p className="text-gray-500 mt-1">{habit.description}</p>
-          )}
         </div>
-        <button
-          onClick={() => handleCheckIn()}
-          disabled={habit.loggedToday || checking}
-          className={`text-sm px-4 py-2 rounded-lg transition-colors font-medium ${
-            habit.loggedToday
-              ? "bg-green-100 text-green-700 cursor-default"
-              : "bg-blue-500 hover:bg-blue-600 text-white"
-          }`}
-        >
-          {habit.loggedToday ? "Done today ✓" : checking ? "..." : "Check in"}
-        </button>
-      </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="bg-orange-50 rounded-xl p-4 text-center">
-          <p className="text-2xl font-bold text-orange-500">
-            🔥 {habit.currentStreak}
-          </p>
-          <p className="text-xs text-gray-500 mt-1">day streak</p>
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-4">
+          <div className="bg-orange-50 rounded-xl p-4 text-center">
+            <p className="text-2xl font-bold text-orange-500">
+              🔥 {habit.currentStreak}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">day streak</p>
+          </div>
+          <div className="bg-blue-50 rounded-xl p-4 text-center">
+            <p className="text-2xl font-bold text-blue-500">
+              {habit.totalCompleted}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">total check-ins</p>
+          </div>
+          <div className="bg-green-50 rounded-xl p-4 text-center">
+            <p className="text-2xl font-bold text-green-500">
+              {habit.logsThisWeek}/{habit.frequency}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">days this week</p>
+          </div>
         </div>
-        <div className="bg-blue-50 rounded-xl p-4 text-center">
-          <p className="text-2xl font-bold text-blue-500">
-            {habit.totalCompleted}
-          </p>
-          <p className="text-xs text-gray-500 mt-1">total check-ins</p>
-        </div>
-        <div className="bg-green-50 rounded-xl p-4 text-center">
-          <p className="text-2xl font-bold text-green-500">
-            {habit.logsThisWeek}/{habit.frequency}
-          </p>
-          <p className="text-xs text-gray-500 mt-1">days this week</p>
-        </div>
-      </div>
 
-      {/* Calendar */}
-      <div className="border rounded-xl p-5">
-        <h2 className="text-sm font-semibold text-gray-600 mb-4">
-          Check-in History
-        </h2>
-        <HabitCalendar
-          logDates={habit.logDates}
-          createdAt={habit.createdAt}
-          onLogDate={handleCheckIn}
-          onRemoveDate={handleRemoveDate}
-        />
-      </div>
-
-      {/* Goal details */}
-      <div className="border rounded-xl p-5 space-y-3">
-        <h2 className="text-sm font-semibold text-gray-600">Goals</h2>
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-500">Frequency</span>
-          <span className="font-medium">{habit.frequency} days / week</span>
-        </div>
-        {habit.durationWeeks && (
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Duration</span>
-            <span className="font-medium">{habit.durationWeeks} weeks</span>
+        {showPactInvite && (
+          <div className="border border-purple-200 rounded-xl p-5 bg-purple-50/40 space-y-3">
+            <h2 className="text-sm font-semibold text-purple-700">
+              Invite a partner to this Pact
+            </h2>
+            <input
+              type="text"
+              placeholder="Search by username..."
+              value={pactSearch}
+              onChange={(e) => setPactSearch(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+            />
+            {isPactSearching && (
+              <p className="text-xs text-gray-400">Searching...</p>
+            )}
+            {pactResults.length > 0 && (
+              <ul className="border border-gray-200 rounded-lg overflow-hidden divide-y divide-gray-100 bg-white">
+                {pactResults.map((u) => (
+                  <li key={u.id}>
+                    <button
+                      onClick={() => handleSendPactInvite(u.username)}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-800 hover:bg-purple-50 hover:text-purple-700 transition-colors"
+                    >
+                      @{u.username}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {pactMessage && (
+              <p className="text-xs text-purple-600">{pactMessage}</p>
+            )}
           </div>
         )}
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-500">Started</span>
-          <span className="font-medium">{startDate}</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-500">Visibility</span>
-          <span className="font-medium capitalize">{habit.socialMode}</span>
-        </div>
-      </div>
 
-      {/* Habit anchors */}
-      {(habit.triggerCue || habit.microVersion || habit.reward) && (
-        <div className="border rounded-xl p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-gray-600">Habit Anchors</h2>
-          {habit.triggerCue && (
-            <div>
-              <p className="text-xs text-gray-400 mb-1">After I...</p>
-              <p className="text-sm text-gray-700 bg-gray-50 rounded-lg px-3 py-2">
-                {habit.triggerCue}
-              </p>
+        {/* Calendar — side by side if pact, single if not */}
+        {isPact ? (
+          <div className="grid grid-cols-2 gap-4">
+            <div className="border rounded-xl p-5">
+              <h2 className="text-sm font-semibold text-gray-600 mb-4">You</h2>
+              <HabitCalendar
+                logDates={habit.logDates}
+                createdAt={habit.createdAt}
+                onLogDate={handleCheckIn}
+                onRemoveDate={handleRemoveDate}
+              />
+            </div>
+            <div className="border border-purple-200 rounded-xl p-5 bg-purple-50/30">
+              <h2 className="text-sm font-semibold text-purple-600 mb-4">
+                {partnerUsername ? `@${partnerUsername}` : "Partner"}
+              </h2>
+              {partnerUsername ? (
+                <PartnerCalendar
+                  logDates={partnerLogs}
+                  createdAt={habit.createdAt}
+                />
+              ) : (
+                <p className="text-sm text-gray-400 text-center mt-8">
+                  Waiting for partner to accept the Pact invite...
+                </p>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="border rounded-xl p-5">
+            <h2 className="text-sm font-semibold text-gray-600 mb-4">
+              Check-in History
+            </h2>
+            <HabitCalendar
+              logDates={habit.logDates}
+              createdAt={habit.createdAt}
+              onLogDate={handleCheckIn}
+              onRemoveDate={handleRemoveDate}
+            />
+          </div>
+        )}
+
+        {/* Goal details */}
+        <div className="border rounded-xl p-5 space-y-3">
+          <h2 className="text-sm font-semibold text-gray-600">Goals</h2>
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-500">Frequency</span>
+            <span className="font-medium">{habit.frequency} days / week</span>
+          </div>
+          {habit.durationWeeks && (
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-500">Duration</span>
+              <span className="font-medium">{habit.durationWeeks} weeks</span>
             </div>
           )}
-          {habit.microVersion && (
-            <div>
-              <p className="text-xs text-gray-400 mb-1">
-                If I'm busy, I'll at least...
-              </p>
-              <p className="text-sm text-gray-700 bg-gray-50 rounded-lg px-3 py-2">
-                {habit.microVersion}
-              </p>
-            </div>
-          )}
-          {habit.reward && (
-            <div>
-              <p className="text-xs text-gray-400 mb-1">
-                When I hit a milestone, I will...
-              </p>
-              <p className="text-sm text-gray-700 bg-gray-50 rounded-lg px-3 py-2">
-                {habit.reward}
-              </p>
-            </div>
-          )}
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-500">Started</span>
+            <span className="font-medium">{startDate}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-500">Mode</span>
+            <span className="font-medium capitalize">{habit.socialMode}</span>
+          </div>
         </div>
-      )}
-    </div>
+
+        {/* Habit anchors */}
+        {(habit.triggerCue || habit.microVersion || habit.reward) && (
+          <div className="border rounded-xl p-5 space-y-4">
+            <h2 className="text-sm font-semibold text-gray-600">
+              Habit Anchors
+            </h2>
+            {habit.triggerCue && (
+              <div>
+                <p className="text-xs text-gray-400 mb-1">After I...</p>
+                <p className="text-sm text-gray-700 bg-gray-50 rounded-lg px-3 py-2">
+                  {habit.triggerCue}
+                </p>
+              </div>
+            )}
+            {habit.microVersion && (
+              <div>
+                <p className="text-xs text-gray-400 mb-1">
+                  If I'm busy, I'll at least...
+                </p>
+                <p className="text-sm text-gray-700 bg-gray-50 rounded-lg px-3 py-2">
+                  {habit.microVersion}
+                </p>
+              </div>
+            )}
+            {habit.reward && (
+              <div>
+                <p className="text-xs text-gray-400 mb-1">
+                  When I hit a milestone, I will...
+                </p>
+                <p className="text-sm text-gray-700 bg-gray-50 rounded-lg px-3 py-2">
+                  {habit.reward}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

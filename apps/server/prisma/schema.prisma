@@ -24,6 +24,7 @@ model User {
   notifications    Notification[]
   likes            Like[]
   comments         Comment[]
+  habitMembers  HabitMember[]
 }
 
 model Habit {
@@ -43,6 +44,7 @@ model Habit {
   createdAt     DateTime   @default(now())
   habitLogs     HabitLog[]
   posts         Post[]
+  habitMembers  HabitMember[]
 }
 
 model HabitLog {
@@ -111,4 +113,16 @@ model Comment {
   user      User     @relation(fields: [userId], references: [id])
   content   String
   createdAt DateTime @default(now())
+}
+
+model HabitMember {
+  id        Int      @id @default(autoincrement())
+  habitId   Int
+  habit     Habit    @relation(fields: [habitId], references: [id])
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  status    String   @default("pending")  // 'pending' | 'accepted'
+  createdAt DateTime @default(now())
+
+  @@unique([habitId, userId])
 }

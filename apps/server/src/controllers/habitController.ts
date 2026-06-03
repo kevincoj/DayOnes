@@ -12,23 +12,43 @@ export async function getHabits(req: Request, res: Response) {
   tomorrow.setDate(tomorrow.getDate() + 1)
 
   const weekStart = new Date(today)
-  weekStart.setDate(today.getDate() - today.getDay()) // Sunday
+  weekStart.setDate(today.getDate() - today.getDay())
 
-  const habits = await prisma.habit.findMany({
-    where: { userId, isActive: true },
-    orderBy: { createdAt: "desc" },
-    include: {
-      habitLogs: {
-        where: { completed: true },
-        orderBy: { date: "desc" },
+  const [ownedHabits, pactMemberships] = await Promise.all([
+    prisma.habit.findMany({
+      where: { userId, isActive: true },
+      orderBy: { createdAt: "desc" },
+      include: {
+        habitLogs: {
+          where: { completed: true },
+          orderBy: { date: "desc" },
+        },
       },
-    },
-  })
+    }),
+    prisma.habitMember.findMany({
+      where: { userId, status: "accepted" },
+      include: {
+        habit: {
+          include: {
+            habitLogs: {
+              where: { completed: true, userId },
+              orderBy: { date: "desc" },
+            },
+          },
+        },
+      },
+    }),
+  ])
 
-  const habitsWithStats = habits.map((habit) => {
+  const pactHabits = pactMemberships
+    .filter((m) => m.habit.isActive)
+    .map((m) => m.habit)
+
+  const allHabits = [...ownedHabits, ...pactHabits]
+
+  const habitsWithStats = allHabits.map((habit) => {
     const logs = habit.habitLogs
 
-    // Streak
     let currentStreak = 0
     for (let i = 0; i < logs.length; i++) {
       const expected = new Date()
@@ -67,11 +87,19 @@ export async function getHabit(req: Request, res: Response) {
   const weekStart = new Date(today)
   weekStart.setDate(today.getDate() - today.getDay())
 
+  // Check ownership OR pact membership
   const habit = await prisma.habit.findFirst({
-    where: { id: habitId, userId },
+    where: {
+      id: habitId,
+      isActive: true,
+      OR: [
+        { userId },
+        { habitMembers: { some: { userId, status: "accepted" } } },
+      ],
+    },
     include: {
       habitLogs: {
-        where: { completed: true },
+        where: { completed: true, userId },
         orderBy: { date: "asc" },
       },
     },

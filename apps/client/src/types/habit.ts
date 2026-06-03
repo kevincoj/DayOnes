@@ -9,10 +9,12 @@ export interface HabitFormData {
   obstaclePlan: string;
   socialMode: string;
   reward: string;
+  pactPartnerUsername: string;
 }
 
 export interface Habit {
   id: number;
+  userId: number;
   name: string;
   description: string | null;
   frequency: string;
@@ -107,4 +109,18 @@ export interface Like {
   id: number;
   postId: number;
   userId: number;
+}
+
+export interface PactInvite {
+  id: number;
+  habitId: number;
+  userId: number;
+  status: string;
+  habit: {
+    id: number;
+    name: string;
+    user: {
+      username: string;
+    };
+  };
 }
