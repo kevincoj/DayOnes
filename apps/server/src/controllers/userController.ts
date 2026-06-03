@@ -61,7 +61,15 @@ export async function getProfile(req: Request, res: Response) {
     return;
   }
 
-  const activeHabitsCount = user.habits.length;
+  const pactMemberships = await prisma.habitMember.count({
+    where: {
+      userId: user.id,
+      status: "accepted",
+      habit: { isActive: true },
+    },
+  });
+
+  const activeHabitsCount = user.habits.length + pactMemberships;
 
   // Best current streak across all active habits
   let bestStreak = 0;

@@ -113,6 +113,12 @@ export async function leavePact(req: Request, res: Response) {
   }
 
   await prisma.habitMember.delete({ where: { id: membershipId } });
+
+  await prisma.habit.update({
+    where: { id: membership.habit.id },
+    data: { socialMode: "private" },
+  });
+
   res.json({ message: "Left pact" });
 }
 
@@ -165,13 +171,9 @@ export async function getPactPartnerLogs(req: Request, res: Response) {
     return;
   }
 
-  const partnerId = isOwner
-    ? habit.habitMembers[0]?.userId
-    : habit.userId;
+  const partnerId = isOwner ? habit.habitMembers[0]?.userId : habit.userId;
 
-  const partnerInfo = isOwner
-    ? habit.habitMembers[0]?.user
-    : habit.user;
+  const partnerInfo = isOwner ? habit.habitMembers[0]?.user : habit.user;
 
   if (!partnerId) {
     res.json({ partnerLogs: [], partnerUsername: null });
@@ -183,7 +185,9 @@ export async function getPactPartnerLogs(req: Request, res: Response) {
     orderBy: { date: "asc" },
   });
 
-  const logDates = partnerLogs.map((l) => new Date(l.date).toISOString().split("T")[0]);
+  const logDates = partnerLogs.map(
+    (l) => new Date(l.date).toISOString().split("T")[0],
+  );
 
   res.json({ partnerLogs: logDates, partnerUsername: partnerInfo?.username });
 }
