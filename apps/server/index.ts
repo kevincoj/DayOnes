@@ -12,6 +12,7 @@ import userRoutes from './src/routes/users';
 import likeRoutes from "./src/routes/likes";
 import commentRoutes from "./src/routes/comments";
 import notificationRoutes from './src/routes/notifications';
+import pactRoutes from "./src/routes/pacts";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -32,6 +33,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use("/api/posts", likeRoutes);
 app.use("/api/posts", commentRoutes);
+app.use("/api/pacts", pactRoutes);
 
 
 app.listen(PORT, () => {

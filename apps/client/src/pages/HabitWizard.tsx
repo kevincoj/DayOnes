@@ -34,6 +34,7 @@ export default function HabitWizard() {
     obstaclePlan: "",
     socialMode: "private",
     reward: "",
+    pactPartnerUsername: "",
   });
 
   // Move forward one step
@@ -64,9 +65,7 @@ export default function HabitWizard() {
           name: formData.name,
           description: formData.description,
           frequency: formData.frequency,
-          durationWeeks: formData.durationWeeks
-            ? parseInt(formData.durationWeeks)
-            : null,
+          durationWeeks: formData.durationWeeks ? parseInt(formData.durationWeeks) : null,
           triggerCue: formData.triggerCue,
           microVersion: formData.microVersion,
           obstaclePlan: formData.obstaclePlan,
@@ -75,15 +74,29 @@ export default function HabitWizard() {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to create habit");
+      if (!response.ok) throw new Error("Failed to create habit");
+
+      const newHabit = await response.json();
+
+      if (formData.socialMode === "pact" && formData.pactPartnerUsername.trim() !== "") {
+        await fetch("http://localhost:3001/api/pacts/invite", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            habitId: newHabit.id,
+            partnerUsername: formData.pactPartnerUsername.trim(),
+          }),
+        });
       }
 
       navigate("/home");
     } catch (err) {
       console.error("Error creating habit:", err);
       alert("Something went wrong. Please try again.");
-      setIsSubmitting(false); // re-enable if it failed so they can retry
+      setIsSubmitting(false);
     }
   }
 
@@ -175,7 +188,7 @@ export default function HabitWizard() {
             </button>
           )}
         </div>
-      </div>
+      </div>wd 
     </div>
     </div>
   );
