@@ -55,47 +55,110 @@ The core insight: most habit apps track whether you did the thing. DayOnes helps
 
 ## 3. Architecture Overview
 
-> Two architecture diagrams are required by the rubric. These will be added to the repo and referenced here. Described below are the two diagrams we plan to produce.
-
 ### Diagram 1 — System Architecture
 
-```
-┌─────────────────────────────────────────────┐
-│                  CLIENT                      │
-│           React App (Vite)                   │
-│  Pages: Home, Feed, Habit Creation,          │
-│         Progress, Settings, Partner View     │
-└────────────────────┬────────────────────────┘
-                     │ HTTP (REST API)
-                     │ JSON payloads
-                     ▼
-┌─────────────────────────────────────────────┐
-│                  SERVER                      │
-│           Node.js + Express                  │
-│  Routes: /auth, /habits, /logs,              │
-│           /posts, /partners, /search         │
-│  Middleware: JWT auth, input validation      │
-└────────────────────┬────────────────────────┘
-                     │ Prisma ORM
-                     ▼
-┌─────────────────────────────────────────────┐
-│                 DATABASE                     │
-│              PostgreSQL                      │
-│  Tables: users, habits, habit_logs,          │
-│          posts, partners, notifications      │
-└─────────────────────────────────────────────┘
+```mermaid
+graph TD
+  subgraph CLIENT["CLIENT — React + Vite (localhost:5173)"]
+    A[Pages: Home · Feed · Habits · Progress\nPartners · Profile · Learn]
+  end
+
+  subgraph SERVER["SERVER — Node.js + Express (localhost:3001)"]
+    B[Routes: /auth · /habits · /logs · /posts\n/partners · /pacts · /users · /notifications]
+    C[Middleware: JWT auth · input validation]
+  end
+
+  subgraph DB["DATABASE — PostgreSQL via Supabase"]
+    D[(Users · Habits · HabitLogs\nPosts · Partners · HabitMembers\nNotifications · Likes · Comments)]
+  end
+
+  A -- "HTTP REST + JSON" --> B
+  B --> C
+  B -- "Prisma ORM" --> D
 ```
 
 ### Diagram 2 — Entity Relationship Diagram (ER)
 
-To be rendered as a proper ER diagram in the repo. Core entities and relationships:
+```mermaid
+erDiagram
+  User {
+    int id PK
+    string email
+    string username
+    string passwordHash
+    string displayName
+    string bio
+    string avatarUrl
+    boolean isPublic
+  }
+  Habit {
+    int id PK
+    int userId FK
+    string name
+    string socialMode
+    int frequency
+    int durationWeeks
+    boolean isActive
+  }
+  HabitLog {
+    int id PK
+    int habitId FK
+    int userId FK
+    date date
+    boolean completed
+  }
+  HabitMember {
+    int id PK
+    int habitId FK
+    int userId FK
+    string status
+  }
+  Post {
+    int id PK
+    int userId FK
+    int habitId FK
+    string content
+    string visibility
+  }
+  Partner {
+    int id PK
+    int userId FK
+    int partnerId FK
+    string status
+  }
+  Notification {
+    int id PK
+    int userId FK
+    string type
+    string message
+    boolean read
+  }
+  Like {
+    int id PK
+    int postId FK
+    int userId FK
+  }
+  Comment {
+    int id PK
+    int postId FK
+    int userId FK
+    string content
+  }
 
-- **User** → has many **Habits**
-- **Habit** → has many **HabitLogs** (one per day completed)
-- **Habit** → has many **Posts** (completion posts to the feed)
-- **User** → has many **AccountabilityPartners** (join table: user_id, partner_id)
-- **Post** → belongs to **User**, optionally belongs to **Habit**
-- **Notification** → belongs to **User**
+  User ||--o{ Habit : "owns"
+  User ||--o{ HabitLog : "logs"
+  User ||--o{ HabitMember : "joins"
+  User ||--o{ Post : "writes"
+  User ||--o{ Partner : "has"
+  User ||--o{ Notification : "receives"
+  User ||--o{ Like : "gives"
+  User ||--o{ Comment : "writes"
+  Habit ||--o{ HabitLog : "tracked by"
+  Habit ||--o{ HabitMember : "shared with"
+  Habit ||--o{ Post : "referenced in"
+  Post ||--o{ Like : "has"
+  Post ||--o{ Comment : "has"
+```
 
 ---
 
@@ -377,29 +440,27 @@ POST   /api/notifications       Create/schedule a reminder
 
 | Rubric Requirement | Points | Our Plan | Status |
 |---|---|---|---|
-| App displays dynamic data | 50 | Dashboard, feed, progress stats fetched from server | 🔲 |
-| App uploads data client → backend | 50 | Habit creation, log completion, posts | 🔲 |
-| Security / authentication | 50 | JWT auth on all protected routes | 🔲 |
-| Meaningful search through server data | 50 | `/api/habits/search` + feed search | 🔲 |
-| 3 distinct creative features | 150 | Obstacle/if-then planning, social feed, streak & progress dashboard | 🔲 |
-| Meaningful Git usage | 100 | Feature branches, meaningful commit messages, PRs | 🔲 |
-| Detailed README (how to run locally) | 50 | Section 10 of this doc | 🔲 |
-| Visually pleasing & easy to navigate | 50 | Tailwind + polish pass in M3 | 🔲 |
-| Code readability | 100 | Meaningful names, modular structure, ESLint | 🔲 |
-| 2+ architecture diagrams in README | 100 | System architecture + ER diagram | 🔲 |
-| 2+ automated E2E tests | 50 | Playwright (auth flow + habit creation flow) | 🔲 |
-| Significant code on client AND server | FAIL if not | Express routes + React components both non-trivial | 🔲 |
+| App displays dynamic data | 50 | Dashboard, feed, partners, profile, pact calendars, notifications — all fetched from server | ✅ |
+| App uploads data client → backend | 50 | Habit creation, log completion, posts, likes, comments, partner invites, pact invites | ✅ |
+| Security / authentication | 50 | JWT auth on all protected routes via middleware | ✅ |
+| Meaningful search through server data | 50 | `GET /api/habits/search?q=` (habits by name) + `GET /api/users/search?q=` (users by username) | ✅ |
+| 3 distinct creative features | 150 | (1) Obstacle/if-then relapse planning, (2) Social feed with likes & comments, (3) Pact system — shared habit tracking side by side | ✅ |
+| Meaningful Git usage | 100 | Feature branches, descriptive commit messages, PRs merged to main | ✅ |
+| Detailed README (how to run locally) | 50 | Section 10 of this doc | ✅ |
+| Visually pleasing & easy to navigate | 50 | Tailwind CSS, consistent navbar, responsive cards | ✅ |
+| Code readability | 100 | Meaningful names, controller/route/middleware separation, shared types | ✅ |
+| 2+ architecture diagrams in README | 100 | Mermaid system architecture diagram + ER diagram (Section 3) | ✅ |
+| 2+ automated E2E tests | 50 | Playwright: auth flow (`e2e/auth.spec.ts`) + habit creation & check-in (`e2e/habit.spec.ts`) | ✅ |
+| Significant code on client AND server | FAIL if not | 10+ Express controllers + 15+ React pages/components, both non-trivial | ✅ |
 
 ---
 
 ## 10. How to Run Locally
 
-> This section will be finalized by Milestone 3. Below is the intended setup flow.
-
 ### Prerequisites
 - Node.js v18+
-- PostgreSQL 15+
-- npm or yarn
+- npm v8+
+- No local database needed — the app connects to a hosted Supabase PostgreSQL instance
 
 ### Setup
 
@@ -408,27 +469,30 @@ POST   /api/notifications       Create/schedule a reminder
 git clone https://github.com/kevincoj/DayOnes.git
 cd DayOnes
 
-# 2. Install dependencies
-cd server && npm install
-cd ../client && npm install
+# 2. Install all dependencies (monorepo — installs client + server together)
+npm install
 
 # 3. Set up environment variables
-# In /server, create a .env file:
-cp server/.env.example server/.env
-# Fill in: DATABASE_URL, JWT_SECRET
+# In apps/server/, create a .env file with your DATABASE_URL, DIRECT_URL, and JWT_SECRET:
+cp apps/server/.env.example apps/server/.env
 
-# 4. Set up the database
-cd server
-npx prisma migrate dev
+# 4. Generate the Prisma client
+cd apps/server && npx prisma generate && cd ../..
 
-# 5. Run the app
-# Terminal 1 — backend
-cd server && npm run dev
+# 5. Run the app (two terminals)
 
-# Terminal 2 — frontend
-cd client && npm run dev
+# Terminal 1 — backend (http://localhost:3001)
+npm run dev:server
 
-# App will be available at http://localhost:5173
+# Terminal 2 — frontend (http://localhost:5173)
+npm run dev:client
+```
+
+### Run E2E Tests
+
+```bash
+# Make sure both servers are running first (see step 5 above), then:
+npm run test:e2e
 ```
 
 ---
