@@ -82,6 +82,25 @@ export async function getHabits(req: Request, res: Response) {
   res.json(habitsWithStats);
 }
 
+// GET /api/habits/search?q=
+// Searches the logged-in user's habits by name
+export async function searchHabits(req: Request, res: Response) {
+  const userId = (req as any).user.id;
+  const q = String((req as any).query.q ?? "").trim();
+
+  const habits = await prisma.habit.findMany({
+    where: {
+      userId,
+      isActive: true,
+      name: { contains: q, mode: "insensitive" },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 20,
+  });
+
+  res.json(habits);
+}
+
 // GET /api/habits/:id
 // Returns a single habit for the logged-in user
 export async function getHabit(req: Request, res: Response) {
