@@ -12,11 +12,7 @@ interface Props {
   items: MenuItem[];
 }
 
-export default function KebabMenu({
-  isOpen,
-  onToggle,
-  items,
-}: Props) {
+export default function KebabMenu({isOpen, onToggle, items}: Props) {
   return (
     <div className="relative">
       <button
@@ -30,7 +26,7 @@ export default function KebabMenu({
 
       {isOpen && (
         <div className="absolute right-0 mt-1 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-          {items.map((item, index) => (
+          {items.map((item) => (
             <button
               key={item.label}
               onClick={() => {

@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import type { PartnerUser } from "../types/habit";
-import type { Habit } from "../types/habit";
+import {useState, useEffect} from "react";
+import {useParams, useNavigate} from "react-router-dom";
+import {useAuth} from "../context/AuthContext";
+import type {PartnerUser} from "../types/habit";
+import type {Habit} from "../types/habit";
 import Navbar from "../components/Navbar";
 import PactIcon from "../components/PactIcon";
 
@@ -72,7 +72,7 @@ function HabitCalendar({
   function handleDayClick(
     dateStr: string,
     isFuture: boolean,
-    isBeforeStart: boolean,
+    isBeforeStart: boolean
   ) {
     if (isFuture || isBeforeStart) return;
     setSelectedDay((prev) => (prev === dateStr ? null : dateStr));
@@ -108,14 +108,14 @@ function HabitCalendar({
       </div>
 
       <div className="grid grid-cols-7 gap-1">
-        {Array.from({ length: firstDay }).map((_, i) => (
+        {Array.from({length: firstDay}).map((_, i) => (
           <div key={`e-${i}`} />
         ))}
-        {Array.from({ length: daysInMonth }).map((_, i) => {
+        {Array.from({length: daysInMonth}).map((_, i) => {
           const day = i + 1;
           const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(
             2,
-            "0",
+            "0"
           )}-${String(day).padStart(2, "0")}`;
           const isFuture = dateStr > todayStr;
           const isBeforeStart = dateStr < createdStr;
@@ -189,7 +189,7 @@ function HabitCalendar({
   );
 }
 
-function PartnerCalendar({ logDates, createdAt }: ReadOnlyCalendarProps) {
+function PartnerCalendar({logDates, createdAt}: ReadOnlyCalendarProps) {
   const today = new Date();
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
@@ -245,14 +245,14 @@ function PartnerCalendar({ logDates, createdAt }: ReadOnlyCalendarProps) {
       </div>
 
       <div className="grid grid-cols-7 gap-1">
-        {Array.from({ length: firstDay }).map((_, i) => (
+        {Array.from({length: firstDay}).map((_, i) => (
           <div key={`e-${i}`} />
         ))}
-        {Array.from({ length: daysInMonth }).map((_, i) => {
+        {Array.from({length: daysInMonth}).map((_, i) => {
           const day = i + 1;
           const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(
             2,
-            "0",
+            "0"
           )}-${String(day).padStart(2, "0")}`;
           const isFuture = dateStr > todayStr;
           const isBeforeStart = dateStr < createdStr;
@@ -281,9 +281,9 @@ function PartnerCalendar({ logDates, createdAt }: ReadOnlyCalendarProps) {
 }
 
 export default function HabitDetailPage() {
-  const { id } = useParams();
+  const {id} = useParams();
   const navigate = useNavigate();
-  const { user, token: authToken } = useAuth();
+  const {user} = useAuth();
   const [habit, setHabit] = useState<Habit | null>(null);
   const [loading, setLoading] = useState(true);
   const [checking, setChecking] = useState(false);
@@ -301,7 +301,7 @@ export default function HabitDetailPage() {
     async function fetchHabit() {
       const token = localStorage.getItem("token");
       const res = await fetch(`http://localhost:3001/api/habits/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {Authorization: `Bearer ${token}`},
       });
       if (!res.ok) {
         navigate("/home");
@@ -320,7 +320,7 @@ export default function HabitDetailPage() {
     async function fetchPartnerLogs() {
       const token = localStorage.getItem("token");
       const res = await fetch(`http://localhost:3001/api/pacts/habit/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {Authorization: `Bearer ${token}`},
       });
       if (!res.ok) return;
       const data = await res.json();
@@ -342,8 +342,8 @@ export default function HabitDetailPage() {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(dateStr ? { date: dateStr } : {}),
-      },
+        body: JSON.stringify(dateStr ? {date: dateStr} : {}),
+      }
     );
     if (res.ok) {
       const isToday =
@@ -362,7 +362,7 @@ export default function HabitDetailPage() {
                 ? prev.currentStreak + 1
                 : prev.currentStreak,
             }
-          : prev,
+          : prev
       );
     }
     setChecking(false);
@@ -378,8 +378,8 @@ export default function HabitDetailPage() {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ date: dateStr }),
-      },
+        body: JSON.stringify({date: dateStr}),
+      }
     );
     if (res.ok) {
       const isToday = dateStr === new Date().toLocaleDateString("en-CA");
@@ -394,7 +394,7 @@ export default function HabitDetailPage() {
                 ? Math.max(0, prev.currentStreak - 1)
                 : prev.currentStreak,
             }
-          : prev,
+          : prev
       );
     }
   }
@@ -411,8 +411,8 @@ export default function HabitDetailPage() {
         const res = await fetch(
           `http://localhost:3001/api/users/search?q=${pactSearch}`,
           {
-            headers: { Authorization: `Bearer ${token}` },
-          },
+            headers: {Authorization: `Bearer ${token}`},
+          }
         );
         const data = await res.json();
         setPactResults(data);
@@ -431,7 +431,7 @@ export default function HabitDetailPage() {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ habitId: habit!.id, partnerUsername }),
+      body: JSON.stringify({habitId: habit!.id, partnerUsername}),
     });
 
     if (res.ok) {
@@ -441,9 +441,9 @@ export default function HabitDetailPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ ...habit, socialMode: "pact" }),
+        body: JSON.stringify({...habit, socialMode: "pact"}),
       });
-      setHabit((prev) => (prev ? { ...prev, socialMode: "pact" } : prev));
+      setHabit((prev) => (prev ? {...prev, socialMode: "pact"} : prev));
       setPactMessage(`Pact invite sent to @${partnerUsername}!`);
       setPactSearch("");
       setPactResults([]);
