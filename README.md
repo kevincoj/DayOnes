@@ -1,66 +1,56 @@
-# 🗓️ DayOnes — Megaplan README
+# 🗓️ DayOnes
 
-> **Repo:** https://github.com/kevincoj/DayOnes
-> **Course:** CS 35L, Spring 2026
+> **Repo:** https://github.com/kevincoj/DayOnes > **Live App:** https://day-ones-client.vercel.app > **Course:** CS 35L, Spring 2026
+
+DayOnes is a **habit-formation web app** that goes beyond simple streak tracking. It helps users build positive routines and break negative ones by:
+
+- Providing **relapse prevention** through if-then obstacle planning and micro-versions of habits
+- Adding a **social layer** — accountability partners, shared habits, pacts, and a live feed of progress posts
+- Showing **meaningful progress** through streak tracking and completion stats
+
+The core insight: most habit apps track whether you did the thing. DayOnes helps you figure out _when you won't_ and plans for it in advance.
 
 ---
 
 ## Table of Contents
 
-1. [What Is DayOnes?](#1-what-is-dayones)
-2. [Tech Stack](#2-tech-stack)
-3. [Architecture Overview](#3-architecture-overview)
-4. [Feature Commitments & User Stories](#4-feature-commitments--user-stories)
-5. [Database Schema (Draft)](#5-database-schema-draft)
-6. [API Routes (Draft)](#6-api-routes-draft)
-7. [Pages & UI Structure](#7-pages--ui-structure)
-8. [Milestones & Timeline](#8-milestones--timeline)
+1. [Tech Stack](#1-tech-stack)
+2. [Architecture Overview](#2-architecture-overview)
+3. [How to Run Locally](#3-how-to-run-locally)
+4. [How to Run E2E Tests](#4-how-to-run-e2e-tests)
+5. [Features](#5-features)
+6. [API Routes](#6-api-routes)
+7. [Database Schema](#7-database-schema)
+8. [Pages & UI Structure](#8-pages--ui-structure)
 9. [Rubric Coverage Checklist](#9-rubric-coverage-checklist)
-10. [How to Run Locally](#10-how-to-run-locally)
-11. [Testing Plan](#11-testing-plan)
-12. [Open Questions & Decisions Log](#12-open-questions--decisions-log)
 
 ---
 
-## 1. What Is DayOnes?
+## 1. Tech Stack
 
-DayOnes is a **habit-formation web app** that goes beyond simple streak tracking. It helps users build positive routines and break negative ones by:
-
-- Providing **relapse prevention** through if-then obstacle planning and micro-versions of habits
-- Adding a **social layer** — accountability partners, shared habits, and a live feed of progress posts
-- Showing **meaningful progress** through streak tracking and completion stats so users can see how far they've come
-
-The core insight: most habit apps track whether you did the thing. DayOnes helps you figure out *when you won't* — and plans for it in advance.
-
----
-
-## 2. Tech Stack
-
-| Layer | Technology | Rationale |
-|---|---|---|
-| Frontend | React (Vite) | Component-based UI, fast iteration |
-| Backend | Node.js + Express | Full control over API logic; satisfies "significant server code" rubric requirement |
-| Database | PostgreSQL | Relational data fits our habit/user/partner model well |
-| Auth | JWT (JSON Web Tokens) | Stateless, easy to implement, satisfies rubric security requirement |
-| ORM | Prisma | Schema-as-code, readable migrations, integrates cleanly with Postgres |
-| Styling | Tailwind CSS | Rapid UI development |
-| Testing | Playwright (E2E) | Satisfies rubric requirement for 2+ automated end-to-end tests |
-| Charts | Recharts | Simple React-native chart library; powers the progress dashboard |
-| Hosting | Render | Free tier; frontend static site + Express web service + Postgres DB, deploys from GitHub |
-| Version Control | Git + GitHub | Required; meaningful commit history per rubric |
-
-**Why not Firebase/Supabase?** The rubric requires significant code executed on *both* client and server. A BaaS-heavy approach risks the server side being just SDK calls. Node/Express gives us clear, gradeable server-side logic.
+| Layer           | Technology                           |
+| --------------- | ------------------------------------ |
+| Frontend        | React (Vite)                         |
+| Backend         | Node.js + Express                    |
+| Database        | PostgreSQL (hosted on Supabase)      |
+| Auth            | JWT (JSON Web Tokens)                |
+| ORM             | Prisma                               |
+| Styling         | Tailwind CSS                         |
+| Charts          | Recharts                             |
+| Testing         | Playwright (E2E)                     |
+| Hosting         | Vercel (frontend) + Render (backend) |
+| Version Control | Git + GitHub                         |
 
 ---
 
-## 3. Architecture Overview
+## 2. Architecture Overview
 
 ### Diagram 1 — System Architecture
 
 ```mermaid
 graph TD
   subgraph CLIENT["CLIENT — React + Vite (localhost:5173)"]
-    A[Pages: Home · Feed · Habits · Progress\nPartners · Profile · Learn]
+    A[Pages: Home · Feed · Habits · Progress\nPartners · Profile · Search]
   end
 
   subgraph SERVER["SERVER — Node.js + Express (localhost:3001)"]
@@ -77,7 +67,7 @@ graph TD
   B -- "Prisma ORM" --> D
 ```
 
-### Diagram 2 — Entity Relationship Diagram (ER)
+### Diagram 2 — Entity Relationship Diagram
 
 ```mermaid
 erDiagram
@@ -162,302 +152,10 @@ erDiagram
 
 ---
 
-## 4. Feature Commitments & User Stories
-
-### Committed Features (Must Ship)
-
-| # | User Story | Milestone | Rubric Mapping |
-|---|---|---|---|
-| US1 | Select goals & preferences | M1 | Dynamic data, upload |
-| US2 | View daily tasks | M1 | Dynamic data display |
-| US3 | Mark tasks as complete (< 5 sec) | M1 | Upload to backend |
-| US4 | Log a missed day with reason | M2 | Upload, creative feature (obstacle planning) |
-| US5 | Set habit reminders / notifications | M2 | Creative feature |
-| US6 | Modify habit plan | M2 | Upload to backend |
-| US7 | Social feed (post on completion, visibility controls) | M2 | Social aspect, creative feature |
-| US8 | Invite an accountability partner | M3 | Social aspect, upload |
-| US9 | View streak & progress stats dashboard | M3 | Dynamic data, creative feature |
-
-### Committed Social Features (Core Differentiator)
-
-- **Social feed** — completion posts visible to friends/partners
-- **Post visibility control** — private / friends / group
-- **Social mode on habits** — Private, Shared (cooperative), or Competitive
-
-### Rubric-Required Features (Explicitly Tracked)
-
-- **Auth** — login / signup with JWT
-- **Search** — search habits by name/category; search feed posts
-- **Dynamic data display** — feed, dashboard, progress stats all fetched from server
-- **Upload from client** — habit creation, log completion, post creation
-- **2+ E2E tests** — planned from day one (see Testing Plan)
-- **2+ architecture diagrams** — ER diagram + system architecture (see Section 3)
-
-### Stretch Goals (Ship If Time Allows)
-
-| # | User Story |
-|---|---|
-| US10 | Visibility settings for partner view |
-| US11 | Monthly progress report |
-| US12 | Group challenge with leaderboard |
-
----
-
-## 5. Database Schema (Draft)
-
-```sql
--- Users
-users (
-  id            SERIAL PRIMARY KEY,
-  email         VARCHAR UNIQUE NOT NULL,
-  password_hash VARCHAR NOT NULL,
-  username      VARCHAR UNIQUE NOT NULL,
-  display_name  VARCHAR,
-  bio           TEXT,
-  avatar_url    VARCHAR,
-  is_public     BOOLEAN DEFAULT TRUE,
-  created_at    TIMESTAMP DEFAULT NOW()
-)
-
--- Habits
-habits (
-  id              SERIAL PRIMARY KEY,
-  user_id         INT REFERENCES users(id),
-  name            VARCHAR NOT NULL,
-  description     TEXT,
-  trigger_cue     TEXT,           -- "After I [blank]..."
-  micro_version   TEXT,           -- "If busy, I'll at least [blank]..."
-  obstacle_plan   TEXT,           -- "If [obstacle], then [alternative]..."
-  social_mode     VARCHAR,        -- 'private' | 'shared' | 'competitive'
-  frequency       VARCHAR,        -- 'daily' | 'weekly' | custom
-  duration_weeks  INT,
-  reward          TEXT,
-  is_active       BOOLEAN DEFAULT TRUE,
-  created_at      TIMESTAMP DEFAULT NOW()
-)
-
--- Daily Logs
-habit_logs (
-  id          SERIAL PRIMARY KEY,
-  habit_id    INT REFERENCES habits(id),
-  user_id     INT REFERENCES users(id),
-  date        DATE NOT NULL,
-  completed   BOOLEAN NOT NULL,
-  missed_reason TEXT,             -- filled on miss
-  created_at  TIMESTAMP DEFAULT NOW()
-)
-
--- Feed Posts
-posts (
-  id          SERIAL PRIMARY KEY,
-  user_id     INT REFERENCES users(id),
-  habit_id    INT REFERENCES habits(id),
-  content     TEXT,
-  visibility  VARCHAR,            -- 'private' | 'friends' | 'group'
-  created_at  TIMESTAMP DEFAULT NOW()
-)
-
--- Accountability Partners (self-referencing join table)
-partners (
-  id          SERIAL PRIMARY KEY,
-  user_id     INT REFERENCES users(id),
-  partner_id  INT REFERENCES users(id),
-  status      VARCHAR,            -- 'pending' | 'accepted' | 'revoked'
-  created_at  TIMESTAMP DEFAULT NOW()
-)
-
--- Notifications
-notifications (
-  id          SERIAL PRIMARY KEY,
-  user_id     INT REFERENCES users(id),
-  type        VARCHAR,            -- 'reminder' | 'partner_update' | 'milestone'
-  message     TEXT,
-  read        BOOLEAN DEFAULT FALSE,
-  scheduled_at TIMESTAMP,
-  created_at  TIMESTAMP DEFAULT NOW()
-)
-```
-
----
-
-## 6. API Routes (Draft)
-
-### Auth
-```
-POST   /api/auth/register       Create new user
-POST   /api/auth/login          Returns JWT
-POST   /api/auth/logout
-```
-
-### Habits
-```
-GET    /api/habits              Get all habits for current user
-POST   /api/habits              Create new habit
-GET    /api/habits/:id          Get single habit
-PUT    /api/habits/:id          Update habit
-DELETE /api/habits/:id          Soft delete habit
-GET    /api/habits/search?q=    Search habits by name/category  ← satisfies rubric search requirement
-```
-
-### Habit Logs
-```
-GET    /api/logs?date=          Get logs for a given date
-POST   /api/logs                Mark habit complete or log a miss
-PUT    /api/logs/:id            Update a log entry
-```
-
-### Posts (Social Feed)
-```
-GET    /api/posts               Get feed (filtered by visibility/partner status)
-POST   /api/posts               Create a completion post
-DELETE /api/posts/:id           Delete own post
-GET    /api/posts/search?q=     Search posts  ← secondary search surface
-```
-
-### Partners
-```
-POST   /api/partners/invite     Send partner invite (by email or link)
-PUT    /api/partners/:id/accept Accept invite
-DELETE /api/partners/:id        Revoke partner access
-GET    /api/partners            List current partners
-GET    /api/partners/:id/habits View partner's shared habit data
-```
-
-### Users / Profile
-```
-GET    /api/users/:username          Get public profile + stats (streak, habits, completion rate)
-PUT    /api/users/me                 Update own profile (displayName, bio, isPublic)
-GET    /api/users/:username/posts    Get paginated posts for a user (10 per page)
-GET    /api/users/me/friends-feed    Get paginated feed from accepted partners
-GET    /api/users/search?q=          Search users by username
-```
-
-### Notifications
-```
-GET    /api/notifications       Get all notifications for user
-PUT    /api/notifications/:id   Mark as read
-POST   /api/notifications       Create/schedule a reminder
-```
-
----
-
-## 7. Pages & UI Structure
-
-```
-/login                    Login page
-/register                 Sign-up + goal/preference onboarding
-
-/home (Dashboard)
-  └── Today's habit list (check off tasks)
-  └── Quick-log a miss
-
-/habits
-  └── All habits overview
-  └── /habits/new         Habit creation wizard (7-step form)
-  └── /habits/:id         Single habit detail + edit
-
-/feed                     Social feed (posts from partners + self)
-
-/progress                 Monthly stats, streaks, completion rates
-
-/partners
-  └── Invite / manage accountability partners
-  └── /partners/:id       View a partner's shared habits
-
-/settings
-  └── Goals & preferences
-  └── Notification schedule + quiet hours
-  └── Partner visibility controls
-  └── Account info
-
-/profile/:username        User profile page
-  └── Profile header (avatar, name, bio)
-  └── Stats bar (streak, active habits, completion rate)
-  └── My Posts tab + Friends tab
-  └── Edit Profile modal (display name, bio, privacy toggle)
-  └── Following / Followers modal
-
-/search?q=                Search habits or posts
-```
-
-### Habit Creation Wizard (7 Steps)
-1. **Name & Description**
-2. **Frequency & Duration** (daily / weekly / X times per week)
-3. **The Trigger** — "After I [blank]..."
-4. **The Micro-Version** — "If I'm busy, I'll at least [blank]..."
-5. **The Obstacle Plan** — "If [obstacle], then [alternative]..."
-6. **Social Mode** — Private / Shared / Competitive
-7. **The Reward** — "When I hit a 30-day streak, I will [blank]..."
-
----
-
-## 8. Milestones & Timeline
-
-### Milestone 1 — Core Tracking Loop (~Week 5)
-**Goal:** A working app a user can interact with end-to-end.
-
-- [ ] Project scaffolded (React frontend + Express backend + Postgres connected)
-- [ ] Auth working (register, login, JWT middleware)
-- [ ] Habit creation (7-step wizard, saves to DB)
-- [ ] Daily task view (fetch & display today's habits)
-- [ ] Mark complete / log miss (< 5 second interaction)
-- [ ] Basic home dashboard
-
-*Covers: US1, US2, US3*
-
-### Milestone 2 — Relapse Prevention & Social Foundation (~Week 7)
-**Goal:** App is meaningfully differentiated from a basic habit tracker.
-
-- [ ] Obstacle/if-then planning displayed and editable on habit detail page
-- [ ] Encouraging message + micro-version suggestion shown on missed day log
-- [ ] Notifications / reminders (schedule per habit, quiet hours)
-- [ ] Modify habit plan (add/remove/edit tasks)
-- [ ] Feed page (post to feed on completion, visibility controls)
-- [ ] Search (habits by name/category, posts in feed)
-- [ ] Partner invite + accept flow (basic)
-
-*Covers: US4, US5, US6, US7*
-
-### Milestone 3 — Polish, Social Completion & Rubric Hardening (~Week 9)
-**Goal:** App is complete and rubric requirements fully evidenced.
-
-- [ ] Accountability partner view (partner can see shared habits)
-- [ ] Partner visibility settings
-- [ ] Progress page (completion rates, streaks, most-missed habit)
-- [ ] 2+ E2E tests passing (Playwright)
-- [ ] 2 architecture diagrams finalized and in repo
-- [ ] README "How to Run Locally" finalized
-- [ ] UI polish pass — visually pleasing, easy to navigate
-- [ ] Edge case fixes
-- [ ] Stretch: Monthly progress report (US11)
-- [ ] Stretch: Group challenge leaderboard (US12)
-
-*Covers: US8, US9, all rubric checklist items*
-
----
-
-## 9. Rubric Coverage Checklist
-
-| Rubric Requirement | Points | Our Plan | Status |
-|---|---|---|---|
-| App displays dynamic data | 50 | Dashboard, feed, partners, profile, pact calendars, notifications — all fetched from server | ✅ |
-| App uploads data client → backend | 50 | Habit creation, log completion, posts, likes, comments, partner invites, pact invites | ✅ |
-| Security / authentication | 50 | JWT auth on all protected routes via middleware | ✅ |
-| Meaningful search through server data | 50 | `GET /api/habits/search?q=` (habits by name) + `GET /api/users/search?q=` (users by username) | ✅ |
-| 3 distinct creative features | 150 | (1) Obstacle/if-then relapse planning, (2) Social feed with likes & comments, (3) Pact system — shared habit tracking side by side | ✅ |
-| Meaningful Git usage | 100 | Feature branches, descriptive commit messages, PRs merged to main | ✅ |
-| Detailed README (how to run locally) | 50 | Section 10 of this doc | ✅ |
-| Visually pleasing & easy to navigate | 50 | Tailwind CSS, consistent navbar, responsive cards | ✅ |
-| Code readability | 100 | Meaningful names, controller/route/middleware separation, shared types | ✅ |
-| 2+ architecture diagrams in README | 100 | Mermaid system architecture diagram + ER diagram (Section 3) | ✅ |
-| 2+ automated E2E tests | 50 | Playwright: auth flow (`e2e/auth.spec.ts`) + habit creation & check-in (`e2e/habit.spec.ts`) | ✅ |
-| Significant code on client AND server | FAIL if not | 10+ Express controllers + 15+ React pages/components, both non-trivial | ✅ |
-
----
-
-## 10. How to Run Locally
+## 3. How to Run Locally
 
 ### Prerequisites
+
 - Node.js v18+
 - npm v8+
 - No local database needed — the app connects to a hosted Supabase PostgreSQL instance
@@ -473,8 +171,8 @@ cd DayOnes
 npm install
 
 # 3. Set up environment variables
-# In apps/server/, create a .env file with your DATABASE_URL, DIRECT_URL, and JWT_SECRET:
 cp apps/server/.env.example apps/server/.env
+# Open apps/server/.env and fill in: DATABASE_URL, DIRECT_URL, JWT_SECRET
 
 # 4. Generate the Prisma client
 cd apps/server && npx prisma generate && cd ../..
@@ -488,58 +186,233 @@ npm run dev:server
 npm run dev:client
 ```
 
-### Run E2E Tests
+The app will be available at **http://localhost:5173**.
+
+---
+
+## 4. How to Run E2E Tests
+
+Playwright is configured to automatically start both the client and server before running tests. Make sure you have set up your `.env` first (step 3 above), then:
 
 ```bash
-# Make sure both servers are running first (see step 5 above), then:
+# First time only — install the Chromium browser
+npx playwright install chromium
+
+# Run all E2E tests
 npm run test:e2e
+```
+
+Tests live in `e2e/` and run in headless Chromium:
+
+- `e2e/auth.spec.ts` — register, logout, and login flow
+- `e2e/habit.spec.ts` — habit creation and check-in flow
+
+---
+
+## 5. Features
+
+### Core Features
+
+- **Auth** — register and login with JWT; all data routes are protected
+- **Habit tracking** — create habits with a 7-step wizard (name, frequency, trigger cue, micro-version, obstacle plan, social mode, reward); check off daily; log missed days with a reason
+- **Progress dashboard** — streak tracking, completion rates, most-missed habit, stats over time powered by Recharts
+- **Search** — search habits by name and users by username
+
+### Creative Features
+
+1. **Obstacle / if-then relapse planning** — every habit stores a trigger cue, a micro-version ("if busy, I'll at least…"), and an obstacle plan ("if X, then Y"). On a missed day, the app surfaces the micro-version and obstacle plan to help the user recover rather than quit.
+2. **Social feed with likes & comments** — users post habit completions to a feed with private / friends / group visibility; partners can like and comment; the feed is filtered by your partner network.
+3. **Pact system** — users can create shared habits (pacts) where multiple members track the same habit side by side, with a shared calendar view of everyone's check-ins.
+
+### Social Features
+
+- Accountability partners — invite by email, accept/revoke
+- Partner habit view — see a partner's shared habits and their progress
+- Profile pages — avatar, bio, stats bar, post history, privacy toggle
+- In-app notifications — bell icon with unread count badge, surfaced on page load
+
+---
+
+## 6. API Routes
+
+### Auth
+
+```
+POST   /api/auth/register
+POST   /api/auth/login
+POST   /api/auth/logout
+```
+
+### Habits
+
+```
+GET    /api/habits                  Get all habits for current user
+POST   /api/habits                  Create new habit
+GET    /api/habits/:id              Get single habit
+PUT    /api/habits/:id              Update habit
+DELETE /api/habits/:id              Soft delete habit
+GET    /api/habits/search?q=        Search habits by name
+```
+
+### Habit Logs
+
+```
+GET    /api/logs?date=              Get logs for a given date
+POST   /api/logs                    Mark habit complete or log a miss
+PUT    /api/logs/:id                Update a log entry
+```
+
+### Posts (Social Feed)
+
+```
+GET    /api/posts                   Get feed (filtered by visibility/partner status)
+POST   /api/posts                   Create a post
+DELETE /api/posts/:id               Delete own post
+GET    /api/posts/search?q=         Search posts
+```
+
+### Partners
+
+```
+POST   /api/partners/invite         Send partner invite by email
+PUT    /api/partners/:id/accept     Accept invite
+DELETE /api/partners/:id            Revoke partner access
+GET    /api/partners                List current partners
+GET    /api/partners/:id/habits     View partner's shared habits
+```
+
+### Users / Profile
+
+```
+GET    /api/users/:username         Get public profile + stats
+PUT    /api/users/me                Update own profile
+GET    /api/users/:username/posts   Get paginated posts for a user
+GET    /api/users/me/friends-feed   Get paginated feed from accepted partners
+GET    /api/users/search?q=         Search users by username
+```
+
+### Notifications
+
+```
+GET    /api/notifications           Get all notifications for user
+PUT    /api/notifications/:id       Mark as read
+POST   /api/notifications           Create/schedule a reminder
 ```
 
 ---
 
-## 11. Testing Plan
+## 7. Database Schema
 
-The rubric requires **2+ fully automated end-to-end tests**. We will use **Playwright**.
+```sql
+users (
+  id            SERIAL PRIMARY KEY,
+  email         VARCHAR UNIQUE NOT NULL,
+  password_hash VARCHAR NOT NULL,
+  username      VARCHAR UNIQUE NOT NULL,
+  display_name  VARCHAR,
+  bio           TEXT,
+  avatar_url    VARCHAR,
+  is_public     BOOLEAN DEFAULT TRUE,
+  created_at    TIMESTAMP DEFAULT NOW()
+)
 
-### Planned E2E Tests
+habits (
+  id              SERIAL PRIMARY KEY,
+  user_id         INT REFERENCES users(id),
+  name            VARCHAR NOT NULL,
+  description     TEXT,
+  trigger_cue     TEXT,
+  micro_version   TEXT,
+  obstacle_plan   TEXT,
+  social_mode     VARCHAR,        -- 'private' | 'shared' | 'competitive'
+  frequency       VARCHAR,        -- 'daily' | 'weekly' | custom
+  duration_weeks  INT,
+  reward          TEXT,
+  is_active       BOOLEAN DEFAULT TRUE,
+  created_at      TIMESTAMP DEFAULT NOW()
+)
 
-**Test 1 — Auth Flow**
-1. Navigate to `/register`
-2. Fill in email, password, username
-3. Submit → assert redirect to `/home`
-4. Log out → assert redirect to `/login`
-5. Log in with same credentials → assert redirect to `/home`
+habit_logs (
+  id            SERIAL PRIMARY KEY,
+  habit_id      INT REFERENCES habits(id),
+  user_id       INT REFERENCES users(id),
+  date          DATE NOT NULL,
+  completed     BOOLEAN NOT NULL,
+  missed_reason TEXT,
+  created_at    TIMESTAMP DEFAULT NOW()
+)
 
-**Test 2 — Habit Creation & Completion**
-1. Log in as test user
-2. Navigate to `/habits/new`
-3. Complete the 7-step wizard with test data
-4. Assert habit appears on `/home` dashboard
-5. Check off the habit → assert completion logged (UI updates, DB confirmed via API call)
+posts (
+  id          SERIAL PRIMARY KEY,
+  user_id     INT REFERENCES users(id),
+  habit_id    INT REFERENCES habits(id),
+  content     TEXT,
+  visibility  VARCHAR,            -- 'private' | 'friends' | 'group'
+  created_at  TIMESTAMP DEFAULT NOW()
+)
 
-**Stretch Test 3 — Partner Invite Flow**
-1. Log in as User A
-2. Send partner invite to User B's email
-3. Log in as User B
-4. Accept the invite
-5. Assert User A's shared habits are visible to User B
+partners (
+  id          SERIAL PRIMARY KEY,
+  user_id     INT REFERENCES users(id),
+  partner_id  INT REFERENCES users(id),
+  status      VARCHAR,            -- 'pending' | 'accepted' | 'revoked'
+  created_at  TIMESTAMP DEFAULT NOW()
+)
 
-Tests will live in `/tests/` and run via `npm run test:e2e`.
+notifications (
+  id            SERIAL PRIMARY KEY,
+  user_id       INT REFERENCES users(id),
+  type          VARCHAR,          -- 'reminder' | 'partner_update' | 'milestone'
+  message       TEXT,
+  read          BOOLEAN DEFAULT FALSE,
+  scheduled_at  TIMESTAMP,
+  created_at    TIMESTAMP DEFAULT NOW()
+)
+```
 
 ---
 
-## 12. Open Questions & Decisions Log
+## 8. Pages & UI Structure
 
-| # | Question | Decision | Date |
-|---|---|---|---|
-| 1 | Tech stack | React + Node/Express + PostgreSQL + Prisma | 2026-05-14 |
-| 2 | Auth strategy | JWT (stateless) | 2026-05-14 |
-| 3 | Styling | Tailwind CSS | 2026-05-14 |
-| 4 | E2E testing framework | Playwright | 2026-05-14 |
-| 5 | Feature scope | US1–9 committed; stretch: monthly report, group leaderboard | 2026-05-14 |
-| 6 | Team structure | Both members full-stack; divide by feature, not layer | 2026-05-14 |
-| 7 | 3 creative features | Obstacle/if-then planning, social feed, streak & stats dashboard | 2026-05-14 |
-| 8 | Class schedule sync | Dropped — too complex, low rubric payoff | 2026-05-14 |
-| 9 | Personalized plan generation | Dropped — too complex, replaced by stats dashboard | 2026-05-14 |
-| 10 | Hosting/deployment | Render — frontend as static site, backend as web service, Postgres DB (all free tier, deploys from GitHub) | 2026-05-14 |
-| 11 | Notification delivery mechanism | In-app only — bell icon in nav, unread count badge, dropdown list; reminders surfaced by querying scheduled_at on page load | 2026-05-14 |
+```
+/login                      Login page
+/register                   Sign-up + onboarding
+
+/home                       Dashboard — today's habits, check off, log a miss
+
+/habits                     All habits overview
+/habits/new                 7-step habit creation wizard
+/habits/:id                 Habit detail, obstacle plan, edit
+
+/feed                       Social feed (posts from partners + self, likes, comments)
+
+/progress                   Streaks, completion rates, most-missed habit (Recharts)
+
+/partners                   Invite / manage accountability partners
+/partners/:id               View a partner's shared habits
+
+/profile/:username          Profile — avatar, stats bar, posts, edit modal
+
+/search?q=                  Search habits and users
+
+/settings                   Notification preferences, privacy, account info
+```
+
+---
+
+## 9. Rubric Coverage Checklist
+
+| Requirement                           | Points      | How We Meet It                                                                                                                              |
+| ------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| App displays dynamic data             | 50          | Dashboard, feed, progress stats, partner view, notifications — all fetched from the Express server via REST API                             |
+| App uploads data client → backend     | 50          | Habit creation, daily check-ins, missed day logs, posts, likes, comments, partner invites                                                   |
+| Security / authentication             | 50          | JWT issued on login, verified by middleware on all protected routes; passwords hashed with bcrypt                                           |
+| Meaningful search through server data | 50          | `GET /api/habits/search?q=` (habits by name) and `GET /api/users/search?q=` (users by username)                                             |
+| 3 distinct creative features          | 150         | (1) Obstacle/if-then relapse planning, (2) Social feed with likes & comments, (3) Pact system — shared habit tracking with a group calendar |
+| Meaningful Git usage                  | 100         | Feature branches, descriptive commit messages, PRs merged to main                                                                           |
+| Detailed README — how to run locally  | 50          | Sections 3 and 4 of this document                                                                                                           |
+| Visually pleasing & easy to navigate  | 50          | Tailwind CSS, consistent navbar, responsive cards, Recharts progress dashboard                                                              |
+| Code readability                      | 100         | Meaningful identifiers, controller/route/middleware separation, shared types across client and server                                       |
+| 2+ architecture diagrams in README    | 100         | System architecture diagram + ER diagram (Section 2, rendered by GitHub Mermaid)                                                            |
+| 2+ automated E2E tests                | 50          | Playwright: `e2e/auth.spec.ts` (register → logout → login) and `e2e/habit.spec.ts` (create habit → check in)                                |
+| Significant code on client AND server | FAIL if not | 10+ Express route controllers + 15+ React pages and components, both non-trivial                                                            |
