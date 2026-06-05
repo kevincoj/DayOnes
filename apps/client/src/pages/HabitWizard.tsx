@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import type { HabitFormData } from "../types/habit";
-import { useAuth } from "../context/AuthContext";
+import {useState} from "react";
+import {useNavigate} from "react-router-dom";
+import type {HabitFormData} from "../types/habit";
+import {useAuth} from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import Step1 from "../components/wizard/Step1";
 import Step2 from "../components/wizard/Step2";
@@ -15,7 +15,7 @@ const TOTAL_STEPS = 7;
 
 export default function HabitWizard() {
   const navigate = useNavigate();
-  const { token } = useAuth();
+  const {token} = useAuth();
 
   // Form submission state
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,7 +48,7 @@ export default function HabitWizard() {
   }
 
   function handleChange(field: keyof HabitFormData, value: string) {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({...prev, [field]: value}));
   }
 
   // Called when the user submits on the last step
@@ -65,7 +65,9 @@ export default function HabitWizard() {
           name: formData.name,
           description: formData.description,
           frequency: formData.frequency,
-          durationWeeks: formData.durationWeeks ? parseInt(formData.durationWeeks) : null,
+          durationWeeks: formData.durationWeeks
+            ? parseInt(formData.durationWeeks)
+            : null,
           triggerCue: formData.triggerCue,
           microVersion: formData.microVersion,
           obstaclePlan: formData.obstaclePlan,
@@ -78,7 +80,10 @@ export default function HabitWizard() {
 
       const newHabit = await response.json();
 
-      if (formData.socialMode === "pact" && formData.pactPartnerUsername.trim() !== "") {
+      if (
+        formData.socialMode === "pact" &&
+        formData.pactPartnerUsername.trim() !== ""
+      ) {
         await fetch("http://localhost:3001/api/pacts/invite", {
           method: "POST",
           headers: {
@@ -138,58 +143,58 @@ export default function HabitWizard() {
 
   return (
     <div>
-        <Navbar />
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-md w-full max-w-lg p-8">
-        {/* Progress indicator */}
-        <p className="text-sm text-gray-400 mb-2">
-          Step {currentStep} of {TOTAL_STEPS}
-        </p>
+      <Navbar />
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-md w-full max-w-lg p-8">
+          {/* Progress indicator */}
+          <p className="text-sm text-gray-400 mb-2">
+            Step {currentStep} of {TOTAL_STEPS}
+          </p>
 
-        {/* The current step's content */}
-        <div className="mb-8">{renderStep()}</div>
+          {/* The current step's content */}
+          <div className="mb-8">{renderStep()}</div>
 
-        {/* Navigation buttons */}
-        <div className="flex justify-between">
-          {currentStep > 1 ? (
-            <button
-              onClick={handleBack}
-              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              Back
-            </button>
-          ) : (
-            <div />
-          )}
+          {/* Navigation buttons */}
+          <div className="flex justify-between">
+            {currentStep > 1 ? (
+              <button
+                onClick={handleBack}
+                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Back
+              </button>
+            ) : (
+              <div />
+            )}
 
-          {currentStep < TOTAL_STEPS ? (
-            <button
-              onClick={handleNext}
-              disabled={!isStepValid()}
-              className={`px-4 py-2 rounded-lg text-white transition-colors ${
-                isStepValid()
-                  ? "bg-blue-600 hover:bg-blue-700"
-                  : "bg-blue-300 cursor-not-allowed"
-              }`}
-            >
-              Next
-            </button>
-          ) : (
-            <button
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              className={`px-4 py-2 rounded-lg text-white transition-colors ${
-                isSubmitting
-                  ? "bg-green-400 cursor-not-allowed"
-                  : "bg-green-600 hover:bg-green-700"
-              }`}
-            >
-              {isSubmitting ? "Creating..." : "Create Habit"}
-            </button>
-          )}
+            {currentStep < TOTAL_STEPS ? (
+              <button
+                onClick={handleNext}
+                disabled={!isStepValid()}
+                className={`px-4 py-2 rounded-lg text-white transition-colors ${
+                  isStepValid()
+                    ? "bg-blue-600 hover:bg-blue-700"
+                    : "bg-blue-300 cursor-not-allowed"
+                }`}
+              >
+                Next
+              </button>
+            ) : (
+              <button
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className={`px-4 py-2 rounded-lg text-white transition-colors ${
+                  isSubmitting
+                    ? "bg-green-400 cursor-not-allowed"
+                    : "bg-green-600 hover:bg-green-700"
+                }`}
+              >
+                {isSubmitting ? "Creating..." : "Create Habit"}
+              </button>
+            )}
+          </div>
         </div>
-      </div>wd 
-    </div>
+      </div>
     </div>
   );
 }
