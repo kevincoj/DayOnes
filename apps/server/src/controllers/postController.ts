@@ -95,7 +95,10 @@ export const deletePost = async (req: Request, res: Response) => {
     return;
   }
 
+  await prisma.like.deleteMany({ where: { postId } });
+  await prisma.comment.deleteMany({ where: { postId } });
   await prisma.post.delete({ where: { id: postId } });
+
   res.json({ message: "Post deleted" });
 };
 
